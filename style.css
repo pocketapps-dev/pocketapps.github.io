@@ -318,9 +318,9 @@ body {
   color: #fff;
 }
 
-.app-card-billpit .app-card-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
-.app-card-fuelpit .app-card-icon { background: linear-gradient(135deg, #10b981, #34d399); }
-.app-card-shoppingpit .app-card-icon { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.app-card-expenses .app-card-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+.app-card-fuel .app-card-icon { background: linear-gradient(135deg, #10b981, #34d399); }
+.app-card-shopping .app-card-icon { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
 
 .app-card-badge {
   display: inline-block;
@@ -387,8 +387,8 @@ body {
   background: #6366f1;
 }
 
-.app-card-fuelpit .app-card-features li::before { background: #10b981; }
-.app-card-shoppingpit .app-card-features li::before { background: #f59e0b; }
+.app-card-fuel .app-card-features li::before { background: #10b981; }
+.app-card-shopping .app-card-features li::before { background: #f59e0b; }
 
 .app-card-actions {
   display: flex;

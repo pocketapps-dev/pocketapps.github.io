@@ -703,6 +703,123 @@ body {
   color: var(--primary);
 }
 
+/* --- Themes Shop --- */
+.themes-section {
+  padding: 60px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.themes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.theme-card {
+  padding: 28px;
+  border-radius: 16px;
+  background: var(--entry);
+  border: 1px solid var(--border);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.theme-card:hover {
+  transform: translateY(-4px);
+}
+
+.theme-preview {
+  width: 100%;
+  height: 140px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-preview-dot {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.theme-preview-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.theme-preview-dots .theme-preview-dot {
+  width: 32px;
+  height: 32px;
+  box-shadow: none;
+}
+
+.theme-preview-midnight { background: linear-gradient(135deg, #0f0f23, #1a1a3e); }
+.theme-preview-forest { background: linear-gradient(135deg, #0f2e16, #14532d); }
+.theme-preview-sunset { background: linear-gradient(135deg, #3a101e, #7c2d12); }
+.theme-preview-ocean { background: linear-gradient(135deg, #0c3a4d, #0284c7); }
+.theme-preview-autumn { background: linear-gradient(135deg, #451a03, #9a3412); }
+.theme-preview-galaxy { background: linear-gradient(135deg, #1e002b, #5821b5); }
+
+.theme-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.theme-price {
+  font-size: 0.9rem;
+  color: var(--secondary);
+  margin: 0 0 12px;
+}
+
+.theme-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 100px;
+}
+
+.badge-free { background: var(--tertiary); color: var(--primary); }
+.badge-paid { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+
+/* --- Founder card --- */
+.pricing-card-founder {
+  border-color: #d946ef;
+}
+
+[data-theme="dark"] .pricing-card-founder {
+  box-shadow: 0 0 30px rgba(217, 70, 239, 0.15);
+}
+
+.badge-founder {
+  background: linear-gradient(135deg, #ec4899, #d946ef);
+  color: #fff;
+}
+
+.founder-countdown {
+  display: block;
+  margin: 8px 0 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #ec4899;
+}
+
+/* --- Pricing feature disabled --- */
+.feature-disabled {
+  color: var(--secondary);
+  opacity: 0.5;
+}
+
+.feature-disabled::before {
+  color: #ef4444;
+  margin-right: 8px;
+}
+
 /* --- Legal pages --- */
 .legal-section {
   padding: 120px 24px 80px;

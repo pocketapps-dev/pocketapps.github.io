@@ -10,6 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <header id="header"></header>
@@ -22,42 +24,66 @@
       </div>
     </section>
 
+    <!-- Auth Section: shown when NOT authenticated -->
+    <section id="auth-section" class="auth-section">
+      <h2>Entra na tua conta</h2>
+      <p>Usa o email da tua conta PocketExpenses para veres os teus temas e comprares novos.</p>
+      <form id="magic-link-form" class="auth-form">
+        <input type="email" id="email-input" placeholder="omeu@email.com" required autocomplete="email">
+        <button type="submit" class="btn btn-primary" id="send-link-btn">Enviar link de acesso</button>
+      </form>
+      <div id="auth-message" class="auth-message"></div>
+    </section>
+
+    <!-- User Bar: shown when authenticated -->
+    <div id="user-bar" class="user-bar hidden">
+      <div class="user-bar-info">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span>Sessão iniciada: <strong id="user-email"></strong></span>
+      </div>
+      <div class="user-bar-actions">
+        <button id="logout-btn" class="btn-logout">Sair</button>
+      </div>
+    </div>
+
     <section class="themes-section">
       <div class="section-header">
         <h2>Temas Disponíveis</h2>
-        <p>3 temas incluídos no Premium. Temas adicionais à la carte (0,99€ cada), compra única.</p>
+        <p id="themes-subtitle">3 temas incluídos no Premium. Temas adicionais à la carte (0,99€ cada), compra única.</p>
       </div>
 
-      <div class="themes-grid">
+      <!-- Loading spinner -->
+      <div id="loading" class="loading-spinner hidden"></div>
+
+      <!-- Themes grid: rendered by JS -->
+      <div id="themes-grid" class="themes-grid">
+        <!-- Fallback: static catalog shown when not authenticated or JS not loaded -->
         <div class="theme-card">
-          <div class="theme-preview theme-preview-midnight" data-theme-name="midnight">
+          <div class="theme-preview theme-preview-midnight">
             <div class="theme-preview-dot" style="background:#6366f1;"></div>
           </div>
           <h3>Midnight</h3>
           <p class="theme-price">Incluído no Premium</p>
           <span class="theme-badge badge-free">Premium inclui</span>
         </div>
-
         <div class="theme-card">
-          <div class="theme-preview theme-preview-forest" data-theme-name="forest">
+          <div class="theme-preview theme-preview-forest">
             <div class="theme-preview-dot" style="background:#10b981;"></div>
           </div>
           <h3>Forest</h3>
           <p class="theme-price">Incluído no Premium</p>
           <span class="theme-badge badge-free">Premium inclui</span>
         </div>
-
         <div class="theme-card">
-          <div class="theme-preview theme-preview-sunset" data-theme-name="sunset">
+          <div class="theme-preview theme-preview-sunset">
             <div class="theme-preview-dot" style="background:#f59e0b;"></div>
           </div>
           <h3>Sunset</h3>
           <p class="theme-price">Incluído no Premium</p>
           <span class="theme-badge badge-free">Premium inclui</span>
         </div>
-
         <div class="theme-card">
-          <div class="theme-preview theme-preview-ocean" data-theme-name="ocean">
+          <div class="theme-preview theme-preview-ocean">
             <div class="theme-preview-dots">
               <div class="theme-preview-dot" style="background:#06b6d4;"></div>
               <div class="theme-preview-dot" style="background:#0ea5e9;"></div>
@@ -66,11 +92,10 @@
           </div>
           <h3>Ocean</h3>
           <p class="theme-price">0,99€ (compra única)</p>
-          <span class="theme-badge badge-paid">Compra — em breve</span>
+          <span class="theme-badge badge-paid">Entra para comprar</span>
         </div>
-
         <div class="theme-card">
-          <div class="theme-preview theme-preview-autumn" data-theme-name="autumn">
+          <div class="theme-preview theme-preview-autumn">
             <div class="theme-preview-dots">
               <div class="theme-preview-dot" style="background:#ea580c;"></div>
               <div class="theme-preview-dot" style="background:#d97706;"></div>
@@ -79,11 +104,10 @@
           </div>
           <h3>Autumn</h3>
           <p class="theme-price">0,99€ (compra única)</p>
-          <span class="theme-badge badge-paid">Compra — em breve</span>
+          <span class="theme-badge badge-paid">Entra para comprar</span>
         </div>
-
         <div class="theme-card">
-          <div class="theme-preview theme-preview-galaxy" data-theme-name="galaxy">
+          <div class="theme-preview theme-preview-galaxy">
             <div class="theme-preview-dots">
               <div class="theme-preview-dot" style="background:#8b5cf6;"></div>
               <div class="theme-preview-dot" style="background:#a855f7;"></div>
@@ -92,7 +116,7 @@
           </div>
           <h3>Galaxy</h3>
           <p class="theme-price">0,99€ (compra única)</p>
-          <span class="theme-badge badge-paid">Compra — em breve</span>
+          <span class="theme-badge badge-paid">Entra para comprar</span>
         </div>
       </div>
     </section>
@@ -101,5 +125,235 @@
   <footer id="footer"></footer>
 
   <script src="layout.js" defer></script>
+  <script>
+    // ============================================================
+    // PocketApps Theme Store — Magic Link Authentication
+    // ============================================================
+
+    // --- Supabase Config ---
+    const SUPABASE_URL = 'https://vlbhnlzqixmxtlpqsggd.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsYmhubHpxaXhteHRscHFzZ2dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMDIwOTgsImV4cCI6MjEwMDU3ODA5OH0.dEW_iveXfysP6bH33zZvyMPYtv_Ci2qUO4WUvSJYBIw';
+    const APP_NAME = 'expenses';
+
+    // --- Stripe Payment Links ---
+    // Replace these with your actual Stripe Payment Links
+    // Create at: https://dashboard.stripe.com/payment-links
+    // Add metadata: user_id, theme_key, app_name
+    const STRIPE_PAYMENT_LINKS = {
+      'ocean':  'https://buy.stripe.com/TODO_OCEAN',
+      'autumn': 'https://buy.stripe.com/TODO_AUTUMN',
+      'galaxy': 'https://buy.stripe.com/TODO_GALAXY',
+    };
+
+    // --- Initialize Supabase Client ---
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // --- DOM Elements ---
+    const authSection = document.getElementById('auth-section');
+    const userBar = document.getElementById('user-bar');
+    const userEmail = document.getElementById('user-email');
+    const magicLinkForm = document.getElementById('magic-link-form');
+    const emailInput = document.getElementById('email-input');
+    const sendLinkBtn = document.getElementById('send-link-btn');
+    const authMessage = document.getElementById('auth-message');
+    const logoutBtn = document.getElementById('logout-btn');
+    const themesGrid = document.getElementById('themes-grid');
+    const themesSubtitle = document.getElementById('themes-subtitle');
+    const loading = document.getElementById('loading');
+
+    // --- Theme preview CSS class mapping ---
+    const THEME_PREVIEW_CLASS = {
+      'midnight': 'theme-preview-midnight',
+      'forest':   'theme-preview-forest',
+      'sunset':   'theme-preview-sunset',
+      'ocean':    'theme-preview-ocean',
+      'autumn':   'theme-preview-autumn',
+      'galaxy':   'theme-preview-galaxy',
+      'default':  'theme-preview-midnight', // fallback
+    };
+
+    // --- Show auth message ---
+    function showAuthMessage(text, type) {
+      authMessage.textContent = text;
+      authMessage.className = 'auth-message show ' + type;
+    }
+
+    function hideAuthMessage() {
+      authMessage.className = 'auth-message';
+    }
+
+    // --- Handle Magic Link form submission ---
+    magicLinkForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      if (!email) return;
+
+      sendLinkBtn.disabled = true;
+      sendLinkBtn.textContent = 'A enviar...';
+      hideAuthMessage();
+
+      try {
+        const { error } = await supabase.auth.signInWithOtp({
+          email: email,
+          options: {
+            emailRedirectTo: window.location.href,
+          },
+        });
+
+        if (error) throw error;
+
+        showAuthMessage(
+          '✉️ Enviamos um link de acesso para ' + email + '. Verifica a tua caixa de entrada e clica no link para entrares.',
+          'success'
+        );
+        emailInput.value = '';
+      } catch (err) {
+        showAuthMessage(
+          'Erro: ' + (err.message || 'Não foi possível enviar o link. Tenta novamente.'),
+          'error'
+        );
+      } finally {
+        sendLinkBtn.disabled = false;
+        sendLinkBtn.textContent = 'Enviar link de acesso';
+      }
+    });
+
+    // --- Handle logout ---
+    logoutBtn.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+    });
+
+    // --- Render themes grid (authenticated state) ---
+    function renderThemesAuthenticated(themes) {
+      themesGrid.innerHTML = '';
+
+      themes.forEach(theme => {
+        const card = document.createElement('div');
+        card.className = 'theme-card';
+
+        // Preview
+        const previewClass = THEME_PREVIEW_CLASS[theme.theme_key] || 'theme-preview-midnight';
+        const preview = document.createElement('div');
+        preview.className = 'theme-preview ' + previewClass;
+
+        // Dot(s)
+        if (theme.seed_color) {
+          const dot = document.createElement('div');
+          dot.className = 'theme-preview-dot';
+          dot.style.background = theme.seed_color;
+          preview.appendChild(dot);
+        }
+        card.appendChild(preview);
+
+        // Name
+        const name = document.createElement('h3');
+        name.textContent = theme.name;
+        card.appendChild(name);
+
+        // Price / description
+        const price = document.createElement('p');
+        price.className = 'theme-price';
+        if (theme.is_premium) {
+          price.textContent = 'Incluído no Premium';
+        } else if (theme.is_paid) {
+          const euros = (theme.price_cents / 100).toFixed(2).replace('.', ',');
+          price.textContent = euros + '€ (compra única)';
+        } else {
+          price.textContent = 'Gratuito';
+        }
+        card.appendChild(price);
+
+        // Actions
+        const actions = document.createElement('div');
+        actions.className = 'theme-card-actions';
+
+        if (theme.available) {
+          // Theme is available (free, premium with sub, or purchased)
+          const status = document.createElement('div');
+          status.className = 'theme-status theme-status-owned';
+          status.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Disponível';
+          actions.appendChild(status);
+        } else if (theme.is_premium) {
+          // Premium theme but user doesn't have premium
+          const status = document.createElement('div');
+          status.className = 'theme-status theme-status-premium';
+          status.textContent = '🔒 Requer Premium';
+          actions.appendChild(status);
+        } else if (theme.is_paid) {
+          // Paid theme, not purchased
+          const buyLink = document.createElement('a');
+          buyLink.className = 'btn-buy';
+          buyLink.href = STRIPE_PAYMENT_LINKS[theme.theme_key] || '#';
+          buyLink.target = '_blank';
+          buyLink.rel = 'noopener noreferrer';
+          buyLink.textContent = 'Comprar';
+          actions.appendChild(buyLink);
+        }
+
+        card.appendChild(actions);
+        themesGrid.appendChild(card);
+      });
+
+      // Update subtitle
+      const owned = themes.filter(t => t.available).length;
+      const total = themes.length;
+      themesSubtitle.textContent = owned + ' de ' + total + ' temas disponíveis. Temas adicionais à la carte (0,99€ cada).';
+    }
+
+    // --- Load user themes from Supabase ---
+    async function loadUserThemes() {
+      loading.classList.remove('hidden');
+      themesGrid.innerHTML = '';
+
+      try {
+        const { data, error } = await supabase.rpc('get_user_themes', {
+          p_app_name: APP_NAME,
+        });
+
+        if (error) throw error;
+
+        const themes = data || [];
+        renderThemesAuthenticated(themes);
+      } catch (err) {
+        console.error('Error loading themes:', err);
+        themesGrid.innerHTML = '<p style="text-align:center;color:var(--secondary);">Erro ao carregar temas. Tenta novamente.</p>';
+      } finally {
+        loading.classList.add('hidden');
+      }
+    }
+
+    // --- Update UI based on auth state ---
+    function updateAuthUI(session) {
+      if (session) {
+        // Authenticated
+        authSection.classList.add('hidden');
+        userBar.classList.remove('hidden');
+        userEmail.textContent = session.user.email;
+        loadUserThemes();
+      } else {
+        // Not authenticated
+        authSection.classList.remove('hidden');
+        userBar.classList.add('hidden');
+        // Show static catalog (already in HTML as fallback)
+        // The static grid is already there, no need to re-render
+      }
+    }
+
+    // --- Check for existing session on page load ---
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      updateAuthUI(session);
+    })();
+
+    // --- Listen for auth state changes (magic link redirect) ---
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        updateAuthUI(session);
+      } else if (event === 'SIGNED_OUT') {
+        // Reload page to reset to catalog state
+        window.location.reload();
+      }
+    });
+  </script>
 </body>
 </html>

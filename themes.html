@@ -146,7 +146,7 @@
     };
 
     // --- Initialize Supabase Client ---
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // --- DOM Elements ---
     const authSection = document.getElementById('auth-section');
@@ -193,7 +193,7 @@
       hideAuthMessage();
 
       try {
-        const { error } = await supabase.auth.signInWithOtp({
+        const { error } = await supabaseClient.auth.signInWithOtp({
           email: email,
           options: {
             emailRedirectTo: window.location.href,
@@ -220,7 +220,7 @@
 
     // --- Handle logout ---
     logoutBtn.addEventListener('click', async () => {
-      await supabase.auth.signOut();
+      await supabaseClient.auth.signOut();
     });
 
     // --- Render themes grid (authenticated state) ---
@@ -306,7 +306,7 @@
       themesGrid.innerHTML = '';
 
       try {
-        const { data, error } = await supabase.rpc('get_user_themes', {
+        const { data, error } = await supabaseClient.rpc('get_user_themes', {
           p_app_name: APP_NAME,
         });
 
@@ -341,12 +341,12 @@
 
     // --- Check for existing session on page load ---
     (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabaseClient.auth.getSession();
       updateAuthUI(session);
     })();
 
     // --- Listen for auth state changes (magic link redirect) ---
-    supabase.auth.onAuthStateChange((event, session) => {
+    supabaseClient.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
         updateAuthUI(session);
       } else if (event === 'SIGNED_OUT') {

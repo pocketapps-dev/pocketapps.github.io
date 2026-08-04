@@ -67,9 +67,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.location.href = '/';
     });
 
-    // Check existing session
+    // Check existing session (only show user menu if session is valid)
     const { data: { session } } = await supabaseClient.auth.getSession();
-    updateNavbar(session);
+    if (session) {
+      const expiresAt = session.expires_at;
+      const now = Math.floor(Date.now() / 1000);
+      if (expiresAt && expiresAt > now) {
+        updateNavbar(session);
+      } else {
+        // Session expired — sign out
+        await supabaseClient.auth.signOut();
+        updateNavbar(null);
+      }
+    } else {
+      updateNavbar(null);
+    }
 
     // Listen for auth changes
     supabaseClient.auth.onAuthStateChange((event, session) => {

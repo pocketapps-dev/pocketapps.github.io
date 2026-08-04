@@ -73,6 +73,7 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsYmhubHpxaXhteHRscHFzZ2dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMDIwOTgsImV4cCI6MjEwMDU3ODA5OH0.dEW_iveXfysP6bH33zZvyMPYtv_Ci2qUO4WUvSJYBIw';
     const APP_NAME = 'expenses';
     const REDIRECT_HOME = 'https://pocketapps.pt/';
+    const REDIRECT_LOCAL = '/';
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -162,7 +163,7 @@
         const params = new URLSearchParams(window.location.search);
         const redirect = params.get('redirect');
         setTimeout(() => {
-          window.location.href = redirect || REDIRECT_HOME;
+          window.location.href = redirect || REDIRECT_LOCAL;
         }, 800);
       } catch (err) {
         showAuthMessage('Erro: ' + (err.message || 'Não foi possível entrar.'), 'error');
@@ -266,14 +267,22 @@
       } catch (_) {}
     }
 
-    // --- If already logged in, redirect to home (or redirect param) ---
+    // --- If already logged in with a valid session, redirect to home (or redirect param) ---
     (async () => {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
-        ensureGoogleAccess(session);
-        const params = new URLSearchParams(window.location.search);
-        const redirect = params.get('redirect');
-        window.location.href = redirect || REDIRECT_HOME;
+        // Only redirect if the session is still valid (not expired)
+        const expiresAt = session.expires_at;
+        const now = Math.floor(Date.now() / 1000);
+        if (expiresAt && expiresAt > now) {
+          ensureGoogleAccess(session);
+          const params = new URLSearchParams(window.location.search);
+          const redirect = params.get('redirect');
+          window.location.href = redirect || REDIRECT_LOCAL;
+        } else {
+          // Session expired — sign out so the user can log in again
+          await supabaseClient.auth.signOut();
+        }
       }
     })();
   </script>

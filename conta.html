@@ -63,6 +63,26 @@
 
   <footer id="footer"></footer>
 
+  <!-- Consent Dialog (new Google users, like the app's _ConsentDialog) -->
+  <div id="consent-dialog" class="consent-dialog hidden">
+    <div class="consent-dialog-content">
+      <h3>Bem-vindo à PocketApps</h3>
+      <p>Para usar a tua conta, precisamos do teu consentimento:</p>
+      <label class="auth-check">
+        <input type="checkbox" id="consent-dialog-age">
+        <span>Tenho 16 anos ou mais</span>
+      </label>
+      <label class="auth-check">
+        <input type="checkbox" id="consent-dialog-privacy">
+        <span>Aceito a <a href="/privacy.html" target="_blank" rel="noopener">Política de Privacidade</a> e os <a href="/terms.html" target="_blank" rel="noopener">Termos de Serviço</a></span>
+      </label>
+      <div class="consent-dialog-actions">
+        <button class="btn btn-secondary btn-sm" id="consent-cancel">Não aceito</button>
+        <button class="btn btn-primary btn-sm" id="consent-accept">Aceitar e continuar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="layout.js" defer></script>
   <script>
     // ============================================================
@@ -74,12 +94,18 @@
     const APP_NAME = 'expenses';
     const REDIRECT_HOME = 'https://pocketapps.pt/';
     const REDIRECT_LOCAL = '/';
+    const GOOGLE_REDIRECT = 'https://pocketapps.pt/conta.html?google=1';
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // --- DOM Elements ---
     const authMessage = document.getElementById('auth-message');
     const googleBtn = document.getElementById('google-btn');
+    const consentDialog = document.getElementById('consent-dialog');
+    const consentDialogAge = document.getElementById('consent-dialog-age');
+    const consentDialogPrivacy = document.getElementById('consent-dialog-privacy');
+    const consentAcceptBtn = document.getElementById('consent-accept');
+    const consentCancelBtn = document.getElementById('consent-cancel');
     const tabLogin = document.getElementById('tab-login');
     const tabSignup = document.getElementById('tab-signup');
     const loginForm = document.getElementById('login-form');
@@ -241,17 +267,19 @@
     googleBtn.addEventListener('click', async () => {
       hideAuthMessage();
       googleBtn.disabled = true;
+      googleBtn.textContent = 'A redirecionar...';
       try {
         const params = new URLSearchParams(window.location.search);
         const redirect = params.get('redirect');
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
-          options: { redirectTo: redirect || REDIRECT_HOME },
+          options: { redirectTo: redirect || GOOGLE_REDIRECT },
         });
         if (error) throw error;
       } catch (err) {
         showAuthMessage('Erro: ' + (err.message || 'Não foi possível entrar com Google.'), 'error');
         googleBtn.disabled = false;
+        googleBtn.textContent = 'Entrar com Google';
       }
     });
 
@@ -267,16 +295,103 @@
       } catch (_) {}
     }
 
+    // --- Check if a Google user is new (like the app's isNewUser check) ---
+    function isNewGoogleUser(session) {
+      const user = session?.user;
+      if (!user) return false;
+      const createdAt = new Date(user.created_at).getTime();
+      const lastSignIn = new Date(user.last_sign_in_at).getTime();
+      const diffSeconds = Math.abs(createdAt - lastSignIn) / 1000;
+      return diffSeconds < 5;
+    }
+
+    // --- Consent dialog for new Google users (mirrors app's _ConsentDialog) ---
+    function showConsentDialog() {
+      if (!consentDialog) return;
+      consentDialogAge.checked = false;
+      consentDialogPrivacy.checked = false;
+      consentDialog.classList.remove('hidden');
+    }
+
+    function hideConsentDialog() {
+      if (consentDialog) consentDialog.classList.add('hidden');
+    }
+
+    async function recordConsent(session) {
+      try {
+        await supabaseClient.from('profiles').update({
+          privacy_accepted_at: new Date().toISOString(),
+          terms_accepted_at: new Date().toISOString(),
+          age_confirmed_at: new Date().toISOString(),
+        }).eq('id', session.user.id);
+      } catch (_) {}
+    }
+
+    async function sendWelcomeEmail(session) {
+      const email = session.user?.email;
+      if (!email) return;
+      try {
+        await supabaseClient.functions.invoke('send-welcome-email', {
+          body: {
+            user_id: session.user.id,
+            email: email,
+            app_name: APP_NAME,
+          },
+        });
+      } catch (_) {}
+    }
+
+    // --- Consent dialog button handlers ---
+    if (consentAcceptBtn) {
+      consentAcceptBtn.addEventListener('click', async () => {
+        if (!consentDialogAge.checked || !consentDialogPrivacy.checked) {
+          showAuthMessage('Precisas de aceitar os Termos e a Política de Privacidade para continuar.', 'error');
+          return;
+        }
+        hideConsentDialog();
+        hideAuthMessage();
+
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+          await recordConsent(session);
+          await sendWelcomeEmail(session);
+          showAuthMessage('Conta criada! Bem-vindo(a)!', 'success');
+
+          const params = new URLSearchParams(window.location.search);
+          const redirect = params.get('redirect');
+          setTimeout(() => {
+            window.location.href = redirect || REDIRECT_LOCAL;
+          }, 800);
+        }
+      });
+    }
+    if (consentCancelBtn) {
+      consentCancelBtn.addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        window.location.href = '/';
+      });
+    }
+
     // --- If already logged in with a valid session, redirect to home (or redirect param) ---
     (async () => {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
-        // Only redirect if the session is still valid (not expired)
         const expiresAt = session.expires_at;
         const now = Math.floor(Date.now() / 1000);
         if (expiresAt && expiresAt > now) {
-          ensureGoogleAccess(session);
+          await ensureGoogleAccess(session);
+
+          // If redirected from Google OAuth and user is new, show consent dialog
           const params = new URLSearchParams(window.location.search);
+          const isGoogleRedirect = params.get('google') === '1';
+          if (isGoogleRedirect && isNewGoogleUser(session) && session.user?.app_metadata?.provider === 'google') {
+            // Show consent dialog (like the app does for new Google users)
+            hideAuthMessage();
+            showConsentDialog();
+            return;
+          }
+
+          // Non-Google or existing user — redirect normally
           const redirect = params.get('redirect');
           window.location.href = redirect || REDIRECT_LOCAL;
         } else {

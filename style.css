@@ -1034,6 +1034,88 @@ body {
   transform: translateY(-2px);
 }
 
+/* --- Consent dialog overlay --- */
+.consent-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.consent-dialog-content {
+  background: var(--entry);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}
+
+.consent-dialog h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.consent-dialog p {
+  color: var(--secondary);
+  margin: 0 0 24px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.consent-dialog .auth-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: var(--secondary);
+  text-align: left;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+.consent-dialog .auth-check input[type="checkbox"] {
+  margin-top: 2px;
+  accent-color: var(--primary);
+}
+
+.consent-dialog .auth-check a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.consent-dialog .auth-check a:hover {
+  text-decoration: underline;
+}
+
+.consent-dialog-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.consent-dialog-actions .btn {
+  flex: 1;
+}
+
+/* --- Auth message on consent dialog page --- */
+.auth-page .auth-message {
+  margin-top: 16px;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* --- Loading spinner --- */
 .loading-spinner {
   display: flex;

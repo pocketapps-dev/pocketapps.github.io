@@ -24,28 +24,6 @@
       </div>
     </section>
 
-    <!-- Auth Section: shown when NOT authenticated -->
-    <section id="auth-section" class="auth-section">
-      <h2>Entra na tua conta</h2>
-      <p>Usa o email da tua conta PocketExpenses para veres os teus temas e comprares novos.</p>
-      <form id="magic-link-form" class="auth-form">
-        <input type="email" id="email-input" placeholder="omeu@email.com" required autocomplete="email">
-        <button type="submit" class="btn btn-primary" id="send-link-btn">Enviar link de acesso</button>
-      </form>
-      <div id="auth-message" class="auth-message"></div>
-    </section>
-
-    <!-- User Bar: shown when authenticated -->
-    <div id="user-bar" class="user-bar hidden">
-      <div class="user-bar-info">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        <span>Sessão iniciada: <strong id="user-email"></strong></span>
-      </div>
-      <div class="user-bar-actions">
-        <button id="logout-btn" class="btn-logout">Sair</button>
-      </div>
-    </div>
-
     <section class="themes-section">
       <div class="section-header">
         <h2>Temas Disponíveis</h2>
@@ -57,7 +35,7 @@
 
       <!-- Themes grid: rendered by JS -->
       <div id="themes-grid" class="themes-grid">
-        <!-- Fallback: static catalog shown when not authenticated or JS not loaded -->
+        <!-- Fallback: static catalog shown when JS not loaded -->
         <div class="theme-card">
           <div class="theme-preview theme-preview-midnight">
             <div class="theme-preview-dot" style="background:#6366f1;"></div>
@@ -127,7 +105,7 @@
   <script src="layout.js" defer></script>
   <script>
     // ============================================================
-    // PocketApps Theme Store — Magic Link Authentication
+    // PocketApps Theme Store — requires authentication
     // ============================================================
 
     // --- Supabase Config ---
@@ -136,9 +114,6 @@
     const APP_NAME = 'expenses';
 
     // --- Stripe Payment Links ---
-    // Replace these with your actual Stripe Payment Links
-    // Create at: https://dashboard.stripe.com/payment-links
-    // Add metadata: user_id, theme_key, app_name
     const STRIPE_PAYMENT_LINKS = {
       'ocean':  'https://buy.stripe.com/TODO_OCEAN',
       'autumn': 'https://buy.stripe.com/TODO_AUTUMN',
@@ -149,14 +124,6 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // --- DOM Elements ---
-    const authSection = document.getElementById('auth-section');
-    const userBar = document.getElementById('user-bar');
-    const userEmail = document.getElementById('user-email');
-    const magicLinkForm = document.getElementById('magic-link-form');
-    const emailInput = document.getElementById('email-input');
-    const sendLinkBtn = document.getElementById('send-link-btn');
-    const authMessage = document.getElementById('auth-message');
-    const logoutBtn = document.getElementById('logout-btn');
     const themesGrid = document.getElementById('themes-grid');
     const themesSubtitle = document.getElementById('themes-subtitle');
     const loading = document.getElementById('loading');
@@ -171,57 +138,6 @@
       'galaxy':   'theme-preview-galaxy',
       'default':  'theme-preview-midnight', // fallback
     };
-
-    // --- Show auth message ---
-    function showAuthMessage(text, type) {
-      authMessage.textContent = text;
-      authMessage.className = 'auth-message show ' + type;
-    }
-
-    function hideAuthMessage() {
-      authMessage.className = 'auth-message';
-    }
-
-    // --- Handle Magic Link form submission ---
-    magicLinkForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim();
-      if (!email) return;
-
-      sendLinkBtn.disabled = true;
-      sendLinkBtn.textContent = 'A enviar...';
-      hideAuthMessage();
-
-      try {
-        const { error } = await supabaseClient.auth.signInWithOtp({
-          email: email,
-          options: {
-            emailRedirectTo: window.location.href,
-          },
-        });
-
-        if (error) throw error;
-
-        showAuthMessage(
-          '✉️ Enviamos um link de acesso para ' + email + '. Verifica a tua caixa de entrada e clica no link para entrares.',
-          'success'
-        );
-        emailInput.value = '';
-      } catch (err) {
-        showAuthMessage(
-          'Erro: ' + (err.message || 'Não foi possível enviar o link. Tenta novamente.'),
-          'error'
-        );
-      } finally {
-        sendLinkBtn.disabled = false;
-        sendLinkBtn.textContent = 'Enviar link de acesso';
-      }
-    });
-
-    // --- Handle logout ---
-    logoutBtn.addEventListener('click', async () => {
-      await supabaseClient.auth.signOut();
-    });
 
     // --- Render themes grid (authenticated state) ---
     function renderThemesAuthenticated(themes) {
@@ -322,36 +238,23 @@
       }
     }
 
-    // --- Update UI based on auth state ---
-    function updateAuthUI(session) {
-      if (session) {
-        // Authenticated
-        authSection.classList.add('hidden');
-        userBar.classList.remove('hidden');
-        userEmail.textContent = session.user.email;
-        loadUserThemes();
-      } else {
-        // Not authenticated
-        authSection.classList.remove('hidden');
-        userBar.classList.add('hidden');
-        // Show static catalog (already in HTML as fallback)
-        // The static grid is already there, no need to re-render
-      }
-    }
-
-    // --- Check for existing session on page load ---
+    // --- Check auth on page load ---
     (async () => {
       const { data: { session } } = await supabaseClient.auth.getSession();
-      updateAuthUI(session);
+      if (session) {
+        loadUserThemes();
+      } else {
+        // Not authenticated — redirect to login page, then back to themes
+        window.location.href = '/conta.html?redirect=themes';
+      }
     })();
 
-    // --- Listen for auth state changes (magic link redirect) ---
+    // --- Listen for auth state changes ---
     supabaseClient.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') {
-        updateAuthUI(session);
+      if (event === 'SIGNED_IN' && session) {
+        loadUserThemes();
       } else if (event === 'SIGNED_OUT') {
-        // Reload page to reset to catalog state
-        window.location.reload();
+        window.location.href = '/conta.html?redirect=themes';
       }
     });
   </script>

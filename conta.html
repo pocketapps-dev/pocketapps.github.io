@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conta — PocketApps</title>
+  <meta name="description" content="Entra ou cria a tua conta PocketApps.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <header id="header"></header>
+
+  <main>
+    <!-- Auth Section -->
+    <section class="auth-section auth-page">
+      <h2>Conta</h2>
+      <p>Entra ou cria a tua conta PocketApps para acederes à loja de temas e ao teu plano.</p>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" id="tab-login">Entrar</button>
+        <button type="button" class="auth-tab" id="tab-signup">Criar conta</button>
+      </div>
+
+      <!-- Login -->
+      <form id="login-form" class="auth-form auth-form-stack">
+        <input type="email" id="login-email" placeholder="omeu@email.com" required autocomplete="email">
+        <input type="password" id="login-password" placeholder="Palavra-passe" required autocomplete="current-password">
+        <button type="submit" class="btn btn-primary" id="login-btn">Entrar</button>
+      </form>
+
+      <!-- Signup -->
+      <form id="signup-form" class="auth-form auth-form-stack hidden">
+        <input type="email" id="signup-email" placeholder="omeu@email.com" required autocomplete="email">
+        <input type="password" id="signup-password" placeholder="Palavra-passe" required autocomplete="new-password">
+        <input type="password" id="signup-confirm" placeholder="Confirmar palavra-passe" required autocomplete="new-password">
+        <label class="auth-check">
+          <input type="checkbox" id="consent-check">
+          <span>Aceito a <a href="/privacy.html" target="_blank" rel="noopener">Política de Privacidade</a> e os <a href="/terms.html" target="_blank" rel="noopener">Termos de Serviço</a></span>
+        </label>
+        <label class="auth-check">
+          <input type="checkbox" id="age-check">
+          <span>Tenho 16 anos ou mais</span>
+        </label>
+        <button type="submit" class="btn btn-primary" id="signup-btn">Criar conta</button>
+      </form>
+
+      <div class="auth-divider">ou</div>
+
+      <button type="button" class="btn btn-secondary" id="google-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15A11 11 0 0 0 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+        Entrar com Google
+      </button>
+
+      <div id="auth-message" class="auth-message"></div>
+    </section>
+  </main>
+
+  <footer id="footer"></footer>
+
+  <script src="layout.js" defer></script>
+  <script>
+    // ============================================================
+    // PocketApps — Conta (login/signup, espelha o auth do app)
+    // ============================================================
+
+    const SUPABASE_URL = 'https://vlbhnlzqixmxtlpqsggd.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsYmhubHpxaXhteHRscHFzZ2dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMDIwOTgsImV4cCI6MjEwMDU3ODA5OH0.dEW_iveXfysP6bH33zZvyMPYtv_Ci2qUO4WUvSJYBIw';
+    const APP_NAME = 'expenses';
+    const REDIRECT_HOME = 'https://pocketapps.pt/';
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // --- DOM Elements ---
+    const authMessage = document.getElementById('auth-message');
+    const googleBtn = document.getElementById('google-btn');
+    const tabLogin = document.getElementById('tab-login');
+    const tabSignup = document.getElementById('tab-signup');
+    const loginForm = document.getElementById('login-form');
+    const loginEmail = document.getElementById('login-email');
+    const loginPassword = document.getElementById('login-password');
+    const loginBtn = document.getElementById('login-btn');
+    const signupForm = document.getElementById('signup-form');
+    const signupEmail = document.getElementById('signup-email');
+    const signupPassword = document.getElementById('signup-password');
+    const signupConfirm = document.getElementById('signup-confirm');
+    const consentCheck = document.getElementById('consent-check');
+    const ageCheck = document.getElementById('age-check');
+    const signupBtn = document.getElementById('signup-btn');
+
+    // --- Helpers ---
+    function showAuthMessage(text, type) {
+      authMessage.textContent = text;
+      authMessage.className = 'auth-message show ' + type;
+    }
+    function hideAuthMessage() { authMessage.className = 'auth-message'; }
+
+    function setBusy(btn, busy, label) {
+      if (!btn) return;
+      btn.disabled = busy;
+      btn.textContent = busy ? 'Aguarda...' : label;
+    }
+
+    function switchTab(which) {
+      const isLogin = which === 'login';
+      tabLogin.classList.toggle('active', isLogin);
+      tabSignup.classList.toggle('active', !isLogin);
+      loginForm.classList.toggle('hidden', !isLogin);
+      signupForm.classList.toggle('hidden', isLogin);
+      hideAuthMessage();
+    }
+
+    // --- RPCs (iguais aos do app) ---
+    async function checkAppAccess() {
+      const { data, error } = await supabaseClient.rpc('check_app_access', { p_app_name: APP_NAME });
+      if (error) throw error;
+      return !!data;
+    }
+
+    async function addAppAccess(email) {
+      try {
+        await supabaseClient.rpc('add_app_access', { p_email: email, p_app_name: APP_NAME });
+      } catch (_) {}
+    }
+
+    // --- Tabs ---
+    tabLogin.addEventListener('click', () => switchTab('login'));
+    tabSignup.addEventListener('click', () => switchTab('signup'));
+
+    // --- Login ---
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value;
+      if (!email || !password) {
+        showAuthMessage('Preenche todos os campos.', 'error');
+        return;
+      }
+      setBusy(loginBtn, true, 'Entrar');
+      hideAuthMessage();
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        if (!data?.user) {
+          showAuthMessage('Credenciais inválidas. Verifica o email e a palavra-passe.', 'error');
+          return;
+        }
+        const hasAccess = await checkAppAccess();
+        if (!hasAccess) {
+          await supabaseClient.auth.signOut();
+          showAuthMessage('Não tens conta nesta app. Cria uma conta.', 'error');
+          return;
+        }
+        showAuthMessage('Sessão iniciada. Bem-vindo(a)!', 'success');
+        loginForm.reset();
+        // Redirect to the page the user was trying to access, or home
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect');
+        setTimeout(() => {
+          window.location.href = redirect || REDIRECT_HOME;
+        }, 800);
+      } catch (err) {
+        showAuthMessage('Erro: ' + (err.message || 'Não foi possível entrar.'), 'error');
+      } finally {
+        setBusy(loginBtn, false, 'Entrar');
+      }
+    });
+
+    // --- Signup ---
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value;
+      const confirm = signupConfirm.value;
+
+      if (!email || !password || !confirm) {
+        showAuthMessage('Preenche todos os campos.', 'error');
+        return;
+      }
+      if (password !== confirm) {
+        showAuthMessage('As palavras-passe não coincidem.', 'error');
+        return;
+      }
+      if (!consentCheck.checked) {
+        showAuthMessage('Tens de aceitar a Política de Privacidade e os Termos para criar uma conta.', 'error');
+        return;
+      }
+      if (!ageCheck.checked) {
+        showAuthMessage('Tens de confirmar que tens 16 anos ou mais para criar uma conta.', 'error');
+        return;
+      }
+
+      setBusy(signupBtn, true, 'Criar conta');
+      hideAuthMessage();
+      try {
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              app_name: APP_NAME,
+              privacy_accepted: true,
+              terms_accepted: true,
+              age_confirmed: true,
+            },
+            emailRedirectTo: REDIRECT_HOME,
+          },
+        });
+        if (error) throw error;
+
+        const isExisting = data?.user?.identities?.length === 0;
+        if (isExisting) {
+          await addAppAccess(email);
+          showAuthMessage('Conta encontrada! Faz login.', 'success');
+          switchTab('login');
+          return;
+        }
+
+        showAuthMessage('Enviamos um email de confirmação para ' + email + '. Clica no link para ativares a conta.', 'success');
+        signupForm.reset();
+      } catch (err) {
+        if ((err.message || '').toLowerCase().match(/already registered|already exists|já registado|já existe/)) {
+          await addAppAccess(email);
+          showAuthMessage('Conta encontrada! Faz login.', 'success');
+          switchTab('login');
+        } else {
+          showAuthMessage('Erro: ' + (err.message || 'Não foi possível criar a conta.'), 'error');
+        }
+      } finally {
+        setBusy(signupBtn, false, 'Criar conta');
+      }
+    });
+
+    // --- Google ---
+    googleBtn.addEventListener('click', async () => {
+      hideAuthMessage();
+      googleBtn.disabled = true;
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect');
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: redirect || REDIRECT_HOME },
+        });
+        if (error) throw error;
+      } catch (err) {
+        showAuthMessage('Erro: ' + (err.message || 'Não foi possível entrar com Google.'), 'error');
+        googleBtn.disabled = false;
+      }
+    });
+
+    // --- Garantir acesso automático para logins Google (como no app) ---
+    async function ensureGoogleAccess(session) {
+      if (!session || session.user?.app_metadata?.provider !== 'google') return;
+      try {
+        const hasAccess = await checkAppAccess();
+        if (!hasAccess) {
+          const email = session.user.email;
+          if (email) await addAppAccess(email);
+        }
+      } catch (_) {}
+    }
+
+    // --- If already logged in, redirect to home (or redirect param) ---
+    (async () => {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        ensureGoogleAccess(session);
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect');
+        window.location.href = redirect || REDIRECT_HOME;
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -79,23 +79,6 @@ body {
   letter-spacing: -0.02em;
 }
 
-.nav-links {
-  display: flex;
-  gap: 24px;
-}
-
-.nav-links a {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--secondary);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.nav-links a:hover {
-  color: var(--primary);
-}
-
 .theme-toggle {
   background: none;
   border: 1px solid var(--border);
@@ -116,6 +99,79 @@ body {
 
 [data-theme="light"] .icon-sun { display: none; }
 [data-theme="dark"] .icon-moon { display: none; }
+
+/* --- Navbar actions (auth buttons) --- */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--content);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+/* --- Navbar user menu (authenticated) --- */
+.nav-user {
+  position: relative;
+}
+
+.nav-user-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: var(--entry);
+  border: 1px solid var(--border);
+}
+
+.nav-user-menu a {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--secondary);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.nav-user-menu a:hover {
+  color: var(--primary);
+  background: var(--tertiary);
+}
+
+.nav-logout {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: var(--font);
+  color: var(--secondary);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-logout:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
 
 /* --- Hero --- */
 .hero {
@@ -587,54 +643,6 @@ body {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* --- Support --- */
-.support-section {
-  padding: 60px 24px;
-  text-align: center;
-}
-
-.support-content {
-  max-width: 560px;
-  margin: 0 auto;
-  padding: 48px 32px;
-  border-radius: 20px;
-  background: var(--entry);
-  border: 1px solid var(--border);
-}
-
-.support-icon {
-  font-size: 3rem;
-  margin-bottom: 16px;
-}
-
-.support-content h2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: 0 0 12px;
-}
-
-.support-content > p {
-  font-size: 1.05rem;
-  color: var(--secondary);
-  margin: 0 0 28px;
-  line-height: 1.6;
-}
-
-.support-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.support-note {
-  font-size: 0.85rem;
-  color: var(--secondary);
-  margin: 0;
-  opacity: 0.8;
-}
-
 /* --- Contact --- */
 .contact-section {
   padding: 60px 24px;
@@ -800,6 +808,12 @@ body {
   text-align: center;
 }
 
+/* --- Auth page (dedicated login/signup page) --- */
+.auth-page {
+  margin-top: 120px;
+  margin-bottom: 80px;
+}
+
 .auth-section h2 {
   font-size: 1.3rem;
   font-weight: 700;
@@ -946,54 +960,6 @@ body {
 .auth-message.success { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
 .auth-message.error { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 .auth-message.info { background: var(--tertiary); color: var(--primary); }
-
-/* --- User Bar (authenticated state) --- */
-.user-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1100px;
-  margin: 0 auto 32px;
-  padding: 16px 24px;
-  border-radius: 12px;
-  background: var(--entry);
-  border: 1px solid var(--border);
-}
-
-.user-bar-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.9rem;
-  color: var(--content);
-}
-
-.user-bar-info svg {
-  color: #22c55e;
-}
-
-.user-bar-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-logout {
-  padding: 8px 16px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--secondary);
-  cursor: pointer;
-  font-family: var(--font);
-  transition: all 0.2s;
-}
-
-.btn-logout:hover {
-  border-color: #ef4444;
-  color: #ef4444;
-}
 
 /* --- Theme card actions --- */
 .theme-card-actions {
@@ -1195,10 +1161,6 @@ body {
 
 /* --- Responsive --- */
 @media (max-width: 640px) {
-  .nav-links {
-    display: none;
-  }
-
   .hero {
     padding: 120px 16px 60px;
   }
@@ -1222,20 +1184,6 @@ body {
     padding: 36px 20px;
   }
 
-  .support-content {
-    padding: 36px 20px;
-  }
-
-  .support-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .support-buttons .btn {
-    width: 100%;
-    max-width: 280px;
-    justify-content: center;
-  }
 }
 
 /* --- Activation steps --- */
@@ -1486,10 +1434,17 @@ body {
   background: var(--entry);
   border: 1px solid var(--border);
   text-align: center;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.pricing-teaser-card.pricing-card-featured {
+.pricing-teaser-card:hover {
+  transform: translateY(-4px);
   border-color: #6366f1;
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="dark"] .pricing-teaser-card:hover {
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.25);
 }
 
 /* Themes teaser */
@@ -1523,6 +1478,56 @@ body {
 .page-cta-bottom {
   text-align: center;
   padding: 48px 24px;
+}
+
+/* --- Cookie consent banner --- */
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  padding: 16px 24px;
+  background: var(--entry);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .cookie-banner {
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.cookie-banner-content {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cookie-banner-content p {
+  font-size: 0.9rem;
+  color: var(--secondary);
+  margin: 0;
+  flex: 1;
+  min-width: 250px;
+}
+
+.cookie-banner-content a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.cookie-banner-content a:hover {
+  text-decoration: underline;
+}
+
+.cookie-banner-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 

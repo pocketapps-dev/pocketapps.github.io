@@ -12,6 +12,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js" defer></script>
 </head>
 <body>
   <header id="header"></header>
@@ -23,29 +24,6 @@
         <p class="hero-sub-subtitle">Plano gratuito com funcionalidades essenciais. Premium e Founder para quem quer mais.</p>
       </div>
     </section>
-
-    <!-- Auth Section: shown when NOT authenticated -->
-    <section id="auth-section" class="auth-section">
-      <h2>Entra na tua conta</h2>
-      <p>Usa o email da tua conta PocketExpenses para veres o teu plano atual e comprares.</p>
-      <form id="magic-link-form" class="auth-form">
-        <input type="email" id="email-input" placeholder="omeu@email.com" required autocomplete="email">
-        <button type="submit" class="btn btn-primary" id="send-link-btn">Enviar link de acesso</button>
-      </form>
-      <div id="auth-message" class="auth-message"></div>
-    </section>
-
-    <!-- User Bar: shown when authenticated -->
-    <div id="user-bar" class="user-bar hidden">
-      <div class="user-bar-info">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        <span>Sessão iniciada: <strong id="user-email"></strong></span>
-        <span id="current-plan-badge" class="theme-badge badge-free" style="margin-left:8px;"></span>
-      </div>
-      <div class="user-bar-actions">
-        <button id="logout-btn" class="btn-logout">Sair</button>
-      </div>
-    </div>
 
     <section class="pricing-section">
       <div class="section-header">
@@ -77,11 +55,11 @@
           </div>
         </div>
 
-        <div class="pricing-card pricing-card-featured" data-plan="premium">
-          <div class="pricing-badge badge-featured">Mensal</div>
+        <div class="pricing-card" data-plan="premium">
+          <div class="pricing-badge">Mensal</div>
           <h3>Premium</h3>
-          <div class="pricing-price">€1.49</div>
-          <p class="pricing-period">por mês</p>
+          <div class="pricing-price">€17.88</div>
+          <p class="pricing-period">por ano · €1.49/mês</p>
           <ul class="pricing-features">
             <li>&#10003; Tudo do Free (sem limites)</li>
             <li>&#10003; Sem anúncios</li>
@@ -109,10 +87,10 @@
         </div>
 
         <div class="pricing-card pricing-card-founder" data-plan="founder">
-          <div class="pricing-badge badge-founder">Promoção 50% OFF</div>
+          <div class="pricing-badge badge-founder">50% OFF</div>
           <h3>Founder</h3>
           <div class="pricing-price">€29.99</div>
-          <p class="pricing-period">pagamento único (lifetime)</p>
+          <p class="pricing-period">pagamento único · de €59.99</p>
           <ul class="pricing-features">
             <li>&#10003; Tudo do Premium Anual</li>
             <li>&#10003; Todas as apps (bundle)</li>
@@ -133,7 +111,7 @@
   <script src="layout.js" defer></script>
   <script>
     // ============================================================
-    // PocketApps Pricing — Magic Link Authentication
+    // PocketApps Pricing — requires authentication
     // ============================================================
 
     // --- Supabase Config ---
@@ -142,7 +120,6 @@
     const APP_NAME = 'expenses';
 
     // --- Stripe Payment Links ---
-    // Replace these with your actual Stripe Payment Links
     const STRIPE_PAYMENT_LINKS = {
       'premium': 'https://buy.stripe.com/TODO_PREMIUM_MONTHLY',
       'annual':  'https://buy.stripe.com/TODO_PREMIUM_ANNUAL',
@@ -153,74 +130,11 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // --- DOM Elements ---
-    const authSection = document.getElementById('auth-section');
-    const userBar = document.getElementById('user-bar');
-    const userEmail = document.getElementById('user-email');
-    const currentPlanBadge = document.getElementById('current-plan-badge');
-    const magicLinkForm = document.getElementById('magic-link-form');
-    const emailInput = document.getElementById('email-input');
-    const sendLinkBtn = document.getElementById('send-link-btn');
-    const authMessage = document.getElementById('auth-message');
-    const logoutBtn = document.getElementById('logout-btn');
     const loading = document.getElementById('loading');
-
-    // --- Show auth message ---
-    function showAuthMessage(text, type) {
-      authMessage.textContent = text;
-      authMessage.className = 'auth-message show ' + type;
-    }
-
-    function hideAuthMessage() {
-      authMessage.className = 'auth-message';
-    }
-
-    // --- Handle Magic Link form submission ---
-    magicLinkForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim();
-      if (!email) return;
-
-      sendLinkBtn.disabled = true;
-      sendLinkBtn.textContent = 'A enviar...';
-      hideAuthMessage();
-
-      try {
-        const { error } = await supabaseClient.auth.signInWithOtp({
-          email: email,
-          options: { emailRedirectTo: window.location.href },
-        });
-
-        if (error) throw error;
-
-        showAuthMessage(
-          '✉️ Enviamos um link de acesso para ' + email + '. Verifica a tua caixa de entrada.',
-          'success'
-        );
-        emailInput.value = '';
-      } catch (err) {
-        showAuthMessage(
-          'Erro: ' + (err.message || 'Não foi possível enviar o link.'),
-          'error'
-        );
-      } finally {
-        sendLinkBtn.disabled = false;
-        sendLinkBtn.textContent = 'Enviar link de acesso';
-      }
-    });
-
-    // --- Handle logout ---
-    logoutBtn.addEventListener('click', async () => {
-      await supabaseClient.auth.signOut();
-    });
 
     // --- Render pricing based on current plan ---
     function renderPricingAuthenticated(plan, status, endsAt) {
       const isActive = status === 'active' && (!endsAt || new Date(endsAt) > new Date());
-
-      // Show current plan badge
-      const planLabel = plan === 'founder' ? 'Founder' : (plan === 'premium' ? 'Premium' : 'Free');
-      currentPlanBadge.textContent = planLabel;
-      currentPlanBadge.className = 'theme-badge ' + (plan === 'free' ? 'badge-free' : 'badge-paid');
 
       // Update each plan card
       const plans = [
@@ -236,7 +150,7 @@
 
         container.innerHTML = '';
 
-        if (plan === p.id || (p.id === 'annual' && plan === 'premium' && false) || (p.id === 'premium' && plan === 'founder')) {
+        if (plan === p.id || (p.id === 'premium' && plan === 'founder')) {
           // Current plan or included
           const status = document.createElement('div');
           status.className = 'theme-status theme-status-owned';
@@ -290,36 +204,23 @@
       }
     }
 
-    // --- Update UI based on auth state ---
-    function updateAuthUI(session) {
-      if (session) {
-        authSection.classList.add('hidden');
-        userBar.classList.remove('hidden');
-        userEmail.textContent = session.user.email;
-        loadUserSubscription();
-      } else {
-        authSection.classList.remove('hidden');
-        userBar.classList.add('hidden');
-        // Reset pricing cards to catalog state (no buy buttons)
-        ['free-actions', 'premium-actions', 'annual-actions', 'founder-actions'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.innerHTML = '';
-        });
-      }
-    }
-
-    // --- Check for existing session on page load ---
+    // --- Check auth on page load ---
     (async () => {
       const { data: { session } } = await supabaseClient.auth.getSession();
-      updateAuthUI(session);
+      if (session) {
+        loadUserSubscription();
+      } else {
+        // Not authenticated — redirect to login page, then back to pricing
+        window.location.href = '/conta.html?redirect=pricing';
+      }
     })();
 
     // --- Listen for auth state changes ---
     supabaseClient.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') {
-        updateAuthUI(session);
+      if (event === 'SIGNED_IN' && session) {
+        loadUserSubscription();
       } else if (event === 'SIGNED_OUT') {
-        window.location.reload();
+        window.location.href = '/conta.html?redirect=pricing';
       }
     });
   </script>

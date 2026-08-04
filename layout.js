@@ -42,22 +42,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // --- Auth state in navbar ---
-  const navAuth = document.getElementById('nav-auth');
+  const navLogin = document.getElementById('nav-login');
   const navUser = document.getElementById('nav-user');
+  const navUserEmail = document.getElementById('nav-user-email');
   const navLogout = document.getElementById('nav-logout');
 
   // Only run auth logic if the navbar has auth elements (all pages use header.html)
-  if (navAuth && navUser && navLogout) {
+  if (navLogin && navUser && navLogout) {
     const SUPABASE_URL = 'https://vlbhnlzqixmxtlpqsggd.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsYmhubHpxaXhteHRscHFzZ2dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMDIwOTgsImV4cCI6MjEwMDU3ODA5OH0.dEW_iveXfysP6bH33zZvyMPYtv_Ci2qUO4WUvSJYBIw';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function updateNavbar(session) {
       if (session) {
-        navAuth.classList.add('hidden');
+        navLogin.classList.add('hidden');
         navUser.classList.remove('hidden');
+        if (navUserEmail && session.user?.email) {
+          navUserEmail.textContent = session.user.email;
+        }
       } else {
-        navAuth.classList.remove('hidden');
+        navLogin.classList.remove('hidden');
         navUser.classList.add('hidden');
       }
     }

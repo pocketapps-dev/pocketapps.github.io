@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const navUserEmail = document.getElementById('nav-user-email');
   const navLogout = document.getElementById('nav-logout');
 
-  // Only run auth logic if the navbar has auth elements (all pages use header.html)
-  if (navLogin && navUser && navLogout) {
+  // Only run auth logic if the navbar has auth elements AND the Supabase SDK is loaded
+  if (navLogin && navUser && navLogout && window.supabase) {
     const SUPABASE_URL = 'https://vlbhnlzqixmxtlpqsggd.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsYmhubHpxaXhteHRscHFzZ2dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMDIwOTgsImV4cCI6MjEwMDU3ODA5OH0.dEW_iveXfysP6bH33zZvyMPYtv_Ci2qUO4WUvSJYBIw';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

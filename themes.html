@@ -102,6 +102,38 @@
 
   <footer id="footer"></footer>
 
+  <!-- Theme preview modal -->
+  <div id="theme-preview-modal" class="theme-preview-modal hidden">
+    <div class="theme-preview-modal-overlay" id="theme-preview-overlay"></div>
+    <div class="theme-preview-modal-content">
+      <button class="theme-preview-close" id="theme-preview-close" aria-label="Fechar pré-visualização">✕</button>
+      <h3 id="theme-preview-title">Pré-visualização</h3>
+      <p class="theme-preview-subtitle" id="theme-preview-subtitle">Amostra do tema</p>
+
+      <!-- Sample app UI -->
+      <div class="sample-app" id="sample-app">
+        <div class="sample-app-header">
+          <div class="sample-app-logo"></div>
+          <div class="sample-app-navs">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+        <div class="sample-app-hero">
+          <div class="sample-app-title"></div>
+          <div class="sample-app-subtitle"></div>
+          <div class="sample-app-btn"></div>
+        </div>
+        <div class="sample-app-cards">
+          <div class="sample-app-card"></div>
+          <div class="sample-app-card"></div>
+          <div class="sample-app-card"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="layout.js" defer></script>
   <script>
     // ============================================================
@@ -142,6 +174,62 @@
       'galaxy':   'theme-preview-galaxy',
       'default':  'theme-preview-midnight', // fallback
     };
+
+    // --- Theme color palettes for the sample preview ---
+    const THEME_COLORS = {
+      'midnight': { bg: '#0f0f23', surface: '#1a1a3e', primary: '#6366f1', text: '#e2e8f0', muted: '#94a3b8' },
+      'forest':   { bg: '#0f2e16', surface: '#14532d', primary: '#22c55e', text: '#e2e8f0', muted: '#94a3b8' },
+      'sunset':   { bg: '#3a101e', surface: '#7c2d12', primary: '#f97316', text: '#fef3c7', muted: '#fcd34d' },
+      'ocean':    { bg: '#0c3a4d', surface: '#0284c7', primary: '#06b6d4', text: '#e0f2fe', muted: '#7dd3fc' },
+      'autumn':   { bg: '#451a03', surface: '#9a3412', primary: '#ea580c', text: '#fef3c7', muted: '#fcd34d' },
+      'galaxy':   { bg: '#1e002b', surface: '#5821b5', primary: '#a855f7', text: '#f3e8ff', muted: '#d8b4fe' },
+      'default':  { bg: '#0f0f1a', surface: '#1a1a2e', primary: '#6366f1', text: '#e2e8f0', muted: '#94a3b8' },
+    };
+
+    // --- Preview modal elements ---
+    const previewModal = document.getElementById('theme-preview-modal');
+    const previewOverlay = document.getElementById('theme-preview-overlay');
+    const previewClose = document.getElementById('theme-preview-close');
+    const previewTitle = document.getElementById('theme-preview-title');
+    const previewSubtitle = document.getElementById('theme-preview-subtitle');
+    const sampleApp = document.getElementById('sample-app');
+
+    // --- Open theme preview modal ---
+    function openThemePreview(theme) {
+      const colors = THEME_COLORS[theme.theme_key] || THEME_COLORS['default'];
+      previewTitle.textContent = theme.name;
+      previewSubtitle.textContent = 'Amostra do tema ' + theme.name;
+
+      // Apply colors to the sample app
+      sampleApp.style.background = colors.bg;
+      sampleApp.style.color = colors.text;
+      sampleApp.querySelector('.sample-app-header').style.background = colors.surface;
+      sampleApp.querySelector('.sample-app-logo').style.background = colors.primary;
+      sampleApp.querySelectorAll('.sample-app-navs span').forEach(s => {
+        s.style.background = colors.muted;
+      });
+      sampleApp.querySelector('.sample-app-hero').style.background = colors.surface;
+      sampleApp.querySelector('.sample-app-title').style.background = colors.primary;
+      sampleApp.querySelector('.sample-app-subtitle').style.background = colors.muted;
+      sampleApp.querySelector('.sample-app-btn').style.background = colors.primary;
+      sampleApp.querySelectorAll('.sample-app-card').forEach(c => {
+        c.style.background = colors.surface;
+        c.style.borderColor = colors.primary;
+      });
+
+      previewModal.classList.remove('hidden');
+    }
+
+    // --- Close theme preview modal ---
+    function closeThemePreview() {
+      previewModal.classList.add('hidden');
+    }
+
+    previewClose.addEventListener('click', closeThemePreview);
+    previewOverlay.addEventListener('click', closeThemePreview);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeThemePreview();
+    });
 
     // --- Render themes grid (authenticated state) ---
     function renderThemesAuthenticated(themes) {
@@ -204,6 +292,14 @@
           buyLink.textContent = 'Comprar';
           actions.appendChild(buyLink);
         }
+
+        // Preview link (always available)
+        const previewLink = document.createElement('button');
+        previewLink.className = 'btn-preview';
+        previewLink.type = 'button';
+        previewLink.textContent = '👁 Pré-visualizar';
+        previewLink.addEventListener('click', () => openThemePreview(theme));
+        actions.appendChild(previewLink);
 
         card.appendChild(actions);
         themesGrid.appendChild(card);

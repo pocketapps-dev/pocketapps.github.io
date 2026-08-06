@@ -1032,6 +1032,179 @@ body {
   transform: translateY(-2px);
 }
 
+/* --- Theme preview modal --- */
+.theme-preview-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.theme-preview-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
+}
+
+.theme-preview-modal-content {
+  position: relative;
+  background: var(--entry);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}
+
+.theme-preview-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: var(--tertiary);
+  color: var(--secondary);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.theme-preview-close:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.theme-preview-modal-content h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.theme-preview-subtitle {
+  color: var(--secondary);
+  font-size: 0.9rem;
+  margin: 0 0 20px;
+}
+
+/* Sample app UI */
+.sample-app {
+  border-radius: 16px;
+  padding: 20px;
+  text-align: left;
+  transition: background 0.3s ease;
+}
+
+.sample-app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.sample-app-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+
+.sample-app-navs {
+  display: flex;
+  gap: 6px;
+}
+
+.sample-app-navs span {
+  width: 20px;
+  height: 6px;
+  border-radius: 3px;
+  opacity: 0.6;
+}
+
+.sample-app-hero {
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.sample-app-title {
+  width: 60%;
+  height: 16px;
+  border-radius: 4px;
+  margin: 0 auto 10px;
+}
+
+.sample-app-subtitle {
+  width: 80%;
+  height: 8px;
+  border-radius: 4px;
+  margin: 0 auto 16px;
+  opacity: 0.5;
+}
+
+.sample-app-btn {
+  width: 40%;
+  height: 28px;
+  border-radius: 8px;
+  margin: 0 auto;
+}
+
+.sample-app-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.sample-app-card {
+  height: 60px;
+  border-radius: 10px;
+  border: 1px solid;
+}
+
+/* Preview button on theme cards */
+.btn-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--secondary);
+  text-decoration: none;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.btn-preview:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--tertiary);
+}
+
 /* --- Consent dialog overlay --- */
 .consent-dialog {
   position: fixed;

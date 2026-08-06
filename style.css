@@ -136,6 +136,7 @@ body {
 .nav-user-menu {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 6px 8px;
   border-radius: 10px;
@@ -159,12 +160,19 @@ body {
 }
 
 .nav-user-email-link {
+  display: block;
+  flex-basis: 100%;
   font-weight: 600 !important;
   color: var(--primary) !important;
-  max-width: 180px;
+  text-align: center;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+  border-radius: 6px 6px 0 0;
+  margin-bottom: 2px;
+  padding-bottom: 8px;
 }
 
 .nav-logout {

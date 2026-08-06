@@ -160,19 +160,16 @@ body {
 }
 
 .nav-user-email-link {
-  display: block;
-  flex-basis: 100%;
   font-weight: 600 !important;
   color: var(--primary) !important;
-  text-align: center;
-  max-width: 100%;
+  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  border-bottom: 1px solid var(--border);
-  border-radius: 6px 6px 0 0;
-  margin-bottom: 2px;
-  padding-bottom: 8px;
+  border-left: 1px solid var(--border);
+  border-radius: 0;
+  margin-left: 4px;
+  padding-left: 12px;
 }
 
 .nav-logout {

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Loja de Temas — PocketApps</title>
-  <meta name="description" content="Personaliza a aparência da tua app. 3 temas incluídos no Premium, mais temas à la carte na loja.">
+  <meta name="description" content="Personaliza a aparência da tua app. Temas a 0,99€ cada (compra única), incluídos no Premium.">
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,14 +20,14 @@
     <section class="hero-sub">
       <div class="hero-sub-content">
         <h1>Loja de Temas</h1>
-        <p class="hero-sub-subtitle">Personaliza a aparência da tua app. Temas incluídos no Premium e à la carte.</p>
+        <p class="hero-sub-subtitle">Personaliza a aparência da tua app. Todos os temas a 0,99€ (compra única), incluídos no Premium.</p>
       </div>
     </section>
 
     <section class="themes-section">
       <div class="section-header">
         <h2>Temas Disponíveis</h2>
-        <p id="themes-subtitle">3 temas incluídos no Premium. Temas adicionais à la carte (0,99€ cada), compra única.</p>
+        <p id="themes-subtitle">Temas a 0,99€ cada (compra única). Os 3 temas incluídos no Premium também podem ser comprados individualmente.</p>
       </div>
 
       <!-- Loading spinner -->
@@ -41,24 +41,24 @@
             <div class="theme-preview-dot" style="background:#6366f1;"></div>
           </div>
           <h3>Midnight</h3>
-          <p class="theme-price">Incluído no Premium</p>
-          <span class="theme-badge badge-free">Premium inclui</span>
+          <p class="theme-price">0,99€ (compra única)</p>
+          <span class="theme-badge badge-paid">Incluído no Premium</span>
         </div>
         <div class="theme-card">
           <div class="theme-preview theme-preview-forest">
             <div class="theme-preview-dot" style="background:#10b981;"></div>
           </div>
           <h3>Forest</h3>
-          <p class="theme-price">Incluído no Premium</p>
-          <span class="theme-badge badge-free">Premium inclui</span>
+          <p class="theme-price">0,99€ (compra única)</p>
+          <span class="theme-badge badge-paid">Incluído no Premium</span>
         </div>
         <div class="theme-card">
           <div class="theme-preview theme-preview-sunset">
             <div class="theme-preview-dot" style="background:#f59e0b;"></div>
           </div>
           <h3>Sunset</h3>
-          <p class="theme-price">Incluído no Premium</p>
-          <span class="theme-badge badge-free">Premium inclui</span>
+          <p class="theme-price">0,99€ (compra única)</p>
+          <span class="theme-badge badge-paid">Incluído no Premium</span>
         </div>
         <div class="theme-card">
           <div class="theme-preview theme-preview-ocean">
@@ -114,10 +114,14 @@
     const APP_NAME = 'expenses';
 
     // --- Stripe Payment Links ---
+    // Premium themes (midnight, forest, sunset) can also be bought individually (0,99€)
     const STRIPE_PAYMENT_LINKS = {
-      'ocean':  'https://buy.stripe.com/TODO_OCEAN',
-      'autumn': 'https://buy.stripe.com/TODO_AUTUMN',
-      'galaxy': 'https://buy.stripe.com/TODO_GALAXY',
+      'midnight': 'https://buy.stripe.com/TODO_MIDNIGHT',
+      'forest':   'https://buy.stripe.com/TODO_FOREST',
+      'sunset':   'https://buy.stripe.com/TODO_SUNSET',
+      'ocean':    'https://buy.stripe.com/TODO_OCEAN',
+      'autumn':   'https://buy.stripe.com/TODO_AUTUMN',
+      'galaxy':   'https://buy.stripe.com/TODO_GALAXY',
     };
 
     // --- Initialize Supabase Client ---
@@ -169,10 +173,11 @@
         // Price / description
         const price = document.createElement('p');
         price.className = 'theme-price';
-        if (theme.is_premium) {
+        if (theme.available && theme.is_premium) {
           price.textContent = 'Incluído no Premium';
-        } else if (theme.is_paid) {
-          const euros = (theme.price_cents / 100).toFixed(2).replace('.', ',');
+        } else if (theme.is_premium || theme.is_paid) {
+          // Premium themes can be bought individually (0,99€) by free users
+          const euros = ((theme.price_cents || 99) / 100).toFixed(2).replace('.', ',');
           price.textContent = euros + '€ (compra única)';
         } else {
           price.textContent = 'Gratuito';
@@ -189,14 +194,8 @@
           status.className = 'theme-status theme-status-owned';
           status.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Disponível';
           actions.appendChild(status);
-        } else if (theme.is_premium) {
-          // Premium theme but user doesn't have premium
-          const status = document.createElement('div');
-          status.className = 'theme-status theme-status-premium';
-          status.textContent = '🔒 Requer Premium';
-          actions.appendChild(status);
-        } else if (theme.is_paid) {
-          // Paid theme, not purchased
+        } else if (theme.is_premium || theme.is_paid) {
+          // Premium theme (not owned) or paid theme (not purchased) — can be bought individually
           const buyLink = document.createElement('a');
           buyLink.className = 'btn-buy';
           buyLink.href = STRIPE_PAYMENT_LINKS[theme.theme_key] || '#';
@@ -213,7 +212,7 @@
       // Update subtitle
       const owned = themes.filter(t => t.available).length;
       const total = themes.length;
-      themesSubtitle.textContent = owned + ' de ' + total + ' temas disponíveis. Temas adicionais à la carte (0,99€ cada).';
+      themesSubtitle.textContent = owned + ' de ' + total + ' temas disponíveis. Temas a 0,99€ cada (compra única); incluídos no Premium.';
     }
 
     // --- Load user themes from Supabase ---

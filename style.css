@@ -133,22 +133,6 @@ body {
   gap: 8px;
 }
 
-.nav-user-info {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 10px;
-  background: var(--tertiary);
-  border: 1px solid var(--border);
-}
-
-.nav-user-email {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--primary);
-}
-
 .nav-user-menu {
   display: flex;
   align-items: center;
@@ -172,6 +156,15 @@ body {
 .nav-user-menu a:hover {
   color: var(--primary);
   background: var(--tertiary);
+}
+
+.nav-user-email-link {
+  font-weight: 600 !important;
+  color: var(--primary) !important;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .nav-logout {

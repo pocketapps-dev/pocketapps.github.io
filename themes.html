@@ -110,25 +110,56 @@
       <h3 id="theme-preview-title">Pré-visualização</h3>
       <p class="theme-preview-subtitle" id="theme-preview-subtitle">Amostra do tema</p>
 
-      <!-- Sample app UI -->
+      <!-- Sample app UI (realistic PocketExpenses mock) -->
       <div class="sample-app" id="sample-app">
         <div class="sample-app-header">
           <div class="sample-app-logo"></div>
+          <div class="sample-app-title-sm"></div>
           <div class="sample-app-navs">
             <span></span>
             <span></span>
             <span></span>
           </div>
         </div>
-        <div class="sample-app-hero">
-          <div class="sample-app-title"></div>
-          <div class="sample-app-subtitle"></div>
-          <div class="sample-app-btn"></div>
+        <div class="sample-app-balance">
+          <div class="sample-app-balance-label">Saldo do mês</div>
+          <div class="sample-app-balance-value">€1.250,00</div>
+          <div class="sample-app-balance-delta">▲ 12% vs mês anterior</div>
         </div>
-        <div class="sample-app-cards">
-          <div class="sample-app-card"></div>
-          <div class="sample-app-card"></div>
-          <div class="sample-app-card"></div>
+        <div class="sample-app-chart">
+          <div class="sample-app-chart-bar" style="height:40%"></div>
+          <div class="sample-app-chart-bar" style="height:65%"></div>
+          <div class="sample-app-chart-bar" style="height:50%"></div>
+          <div class="sample-app-chart-bar" style="height:80%"></div>
+          <div class="sample-app-chart-bar" style="height:60%"></div>
+          <div class="sample-app-chart-bar" style="height:90%"></div>
+          <div class="sample-app-chart-bar" style="height:70%"></div>
+        </div>
+        <div class="sample-app-list">
+          <div class="sample-app-list-item">
+            <div class="sample-app-list-icon"></div>
+            <div class="sample-app-list-text">
+              <div class="sample-app-list-title"></div>
+              <div class="sample-app-list-sub"></div>
+            </div>
+            <div class="sample-app-list-amount"></div>
+          </div>
+          <div class="sample-app-list-item">
+            <div class="sample-app-list-icon"></div>
+            <div class="sample-app-list-text">
+              <div class="sample-app-list-title"></div>
+              <div class="sample-app-list-sub"></div>
+            </div>
+            <div class="sample-app-list-amount"></div>
+          </div>
+          <div class="sample-app-list-item">
+            <div class="sample-app-list-icon"></div>
+            <div class="sample-app-list-text">
+              <div class="sample-app-list-title"></div>
+              <div class="sample-app-list-sub"></div>
+            </div>
+            <div class="sample-app-list-amount"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -205,16 +236,32 @@
       sampleApp.style.color = colors.text;
       sampleApp.querySelector('.sample-app-header').style.background = colors.surface;
       sampleApp.querySelector('.sample-app-logo').style.background = colors.primary;
+      sampleApp.querySelector('.sample-app-title-sm').style.background = colors.primary;
       sampleApp.querySelectorAll('.sample-app-navs span').forEach(s => {
         s.style.background = colors.muted;
       });
-      sampleApp.querySelector('.sample-app-hero').style.background = colors.surface;
-      sampleApp.querySelector('.sample-app-title').style.background = colors.primary;
-      sampleApp.querySelector('.sample-app-subtitle').style.background = colors.muted;
-      sampleApp.querySelector('.sample-app-btn').style.background = colors.primary;
-      sampleApp.querySelectorAll('.sample-app-card').forEach(c => {
-        c.style.background = colors.surface;
-        c.style.borderColor = colors.primary;
+
+      // Balance card
+      const balance = sampleApp.querySelector('.sample-app-balance');
+      balance.style.background = colors.surface;
+      balance.style.borderColor = colors.primary;
+      balance.querySelector('.sample-app-balance-value').style.color = colors.primary;
+      balance.querySelector('.sample-app-balance-delta').style.color = colors.muted;
+
+      // Chart bars
+      sampleApp.querySelectorAll('.sample-app-chart-bar').forEach(bar => {
+        bar.style.background = colors.primary;
+        bar.style.opacity = '0.85';
+      });
+
+      // List items
+      sampleApp.querySelectorAll('.sample-app-list-item').forEach(item => {
+        item.style.background = colors.surface;
+        item.style.borderColor = colors.primary;
+        item.querySelector('.sample-app-list-icon').style.background = colors.primary;
+        item.querySelector('.sample-app-list-title').style.background = colors.text;
+        item.querySelector('.sample-app-list-sub').style.background = colors.muted;
+        item.querySelector('.sample-app-list-amount').style.background = colors.primary;
       });
 
       previewModal.classList.remove('hidden');

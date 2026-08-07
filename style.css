@@ -1102,7 +1102,7 @@ body {
   margin: 0 0 20px;
 }
 
-/* Sample app UI */
+/* Sample app UI (realistic PocketExpenses mock) */
 .sample-app {
   border-radius: 16px;
   padding: 20px;
@@ -1113,7 +1113,7 @@ body {
 .sample-app-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
   padding: 10px 14px;
   border-radius: 10px;
   margin-bottom: 16px;
@@ -1123,11 +1123,20 @@ body {
   width: 24px;
   height: 24px;
   border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.sample-app-title-sm {
+  width: 60px;
+  height: 10px;
+  border-radius: 4px;
+  opacity: 0.8;
 }
 
 .sample-app-navs {
   display: flex;
   gap: 6px;
+  margin-left: auto;
 }
 
 .sample-app-navs span {
@@ -1137,45 +1146,96 @@ body {
   opacity: 0.6;
 }
 
-.sample-app-hero {
+/* Balance card */
+.sample-app-balance {
   border-radius: 12px;
-  padding: 20px;
+  padding: 16px;
   margin-bottom: 16px;
+  border: 1px solid;
   text-align: center;
 }
 
-.sample-app-title {
-  width: 60%;
-  height: 16px;
-  border-radius: 4px;
-  margin: 0 auto 10px;
+.sample-app-balance-label {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-bottom: 4px;
 }
 
-.sample-app-subtitle {
-  width: 80%;
-  height: 8px;
-  border-radius: 4px;
-  margin: 0 auto 16px;
-  opacity: 0.5;
+.sample-app-balance-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 4px;
 }
 
-.sample-app-btn {
-  width: 40%;
-  height: 28px;
-  border-radius: 8px;
-  margin: 0 auto;
+.sample-app-balance-delta {
+  font-size: 0.7rem;
+  opacity: 0.8;
 }
 
-.sample-app-cards {
+/* Chart */
+.sample-app-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 80px;
+  padding: 10px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.sample-app-chart-bar {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  transition: background 0.3s ease;
+}
+
+/* List */
+.sample-app-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 
-.sample-app-card {
-  height: 60px;
+.sample-app-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
   border-radius: 10px;
   border: 1px solid;
+}
+
+.sample-app-list-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.sample-app-list-text {
+  flex: 1;
+  display: grid;
+  gap: 4px;
+}
+
+.sample-app-list-title {
+  width: 60%;
+  height: 8px;
+  border-radius: 4px;
+}
+
+.sample-app-list-sub {
+  width: 40%;
+  height: 6px;
+  border-radius: 3px;
+  opacity: 0.6;
+}
+
+.sample-app-list-amount {
+  width: 40px;
+  height: 10px;
+  border-radius: 4px;
+  flex-shrink: 0;
 }
 
 /* Preview button on theme cards */

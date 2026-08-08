@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Preços — PocketApps</title>
-  <meta name="description" content="Planos PocketApps: Free (gratuito), Premium (1,49€/mês), Premium Anual (14,99€/ano) e Founder lifetime (29,99€).">
+  <meta name="description" content="Planos PocketApps: Free (por conta), Premium (1,49€/mês · 14,99€/ano, todas as apps) e Founder (25€/app com 50% OFF em vagas limitadas).">
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +21,7 @@
     <section class="hero-sub">
       <div class="hero-sub-content">
         <h1>Preços</h1>
-        <p class="hero-sub-subtitle">Plano gratuito com funcionalidades essenciais. Premium e Founder para quem quer mais.</p>
+        <p class="hero-sub-subtitle">Plano gratuito por conta. Premium com todas as apps. Founder com 50% OFF em vagas limitadas.</p>
       </div>
     </section>
 
@@ -39,7 +39,7 @@
           <div class="pricing-badge">Gratuito</div>
           <h3>Free</h3>
           <div class="pricing-price">€0</div>
-          <p class="pricing-period">para sempre</p>
+          <p class="pricing-period">para sempre · por conta</p>
           <ul class="pricing-features">
             <li>&#10003; Até 10 despesas ativas</li>
             <li>&#10003; Até 10 categorias</li>
@@ -55,12 +55,13 @@
           </div>
         </div>
 
-        <div class="pricing-card" data-plan="premium">
-          <div class="pricing-badge">Mensal</div>
+        <div class="pricing-card pricing-card-featured" data-plan="premium">
+          <div class="pricing-badge badge-featured">Recomendado</div>
           <h3>Premium</h3>
-          <div class="pricing-price">€17.88</div>
+          <div class="pricing-price">€14.99</div>
           <p class="pricing-period">por ano · €1.49/mês</p>
           <ul class="pricing-features">
+            <li>&#10003; Todas as apps (bundle)</li>
             <li>&#10003; Tudo do Free (sem limites)</li>
             <li>&#10003; Sem anúncios</li>
             <li>&#10003; Widgets home screen</li>
@@ -73,36 +74,25 @@
           <div class="theme-card-actions" id="premium-actions"></div>
         </div>
 
-        <div class="pricing-card" data-plan="annual">
-          <div class="pricing-badge">Melhor valor</div>
-          <h3>Premium Anual</h3>
-          <div class="pricing-price">€14.99</div>
-          <p class="pricing-period">por ano (€1.25/mês)</p>
-          <ul class="pricing-features">
-            <li>&#10003; Tudo do Premium mensal</li>
-            <li>&#10003; 17% de desconto vs mensal</li>
-            <li>&#10003; Renovação automática opcional</li>
-          </ul>
-          <div class="theme-card-actions" id="annual-actions"></div>
-        </div>
-
         <div class="pricing-card pricing-card-founder" data-plan="founder">
           <div class="pricing-badge badge-founder">50% OFF</div>
           <h3>Founder</h3>
-          <div class="pricing-price">€29.99</div>
-          <p class="pricing-period">pagamento único · de €59.99</p>
+          <div class="pricing-price">€12.50</div>
+          <p class="pricing-period">pagamento único · por app · de €25</p>
           <ul class="pricing-features">
-            <li>&#10003; Tudo do Premium Anual</li>
+            <li>&#10003; Tudo do Premium</li>
             <li>&#10003; Todas as apps (bundle)</li>
             <li>&#10003; Acesso antecipado a novas apps</li>
             <li>&#10003; Nome na página de créditos</li>
             <li>&#10003; Voto em novas features</li>
             <li>&#10003; Early access a betas</li>
-            <span class="founder-countdown">Promoção limitada a 500 códigos</span>
+            <li class="founder-countdown">A carregar vagas de founder…</li>
           </ul>
           <div class="theme-card-actions" id="founder-actions"></div>
         </div>
       </div>
+
+      <p class="pricing-iva-note" id="iva-note"></p>
     </section>
   </main>
 
@@ -119,58 +109,99 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsYmhubHpxaXhteHRscHFzZ2dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMDIwOTgsImV4cCI6MjEwMDU3ODA5OH0.dEW_iveXfysP6bH33zZvyMPYtv_Ci2qUO4WUvSJYBIw';
     const APP_NAME = 'expenses';
 
-    // --- Stripe Payment Links ---
-    const STRIPE_PAYMENT_LINKS = {
-      'premium': 'https://buy.stripe.com/TODO_PREMIUM_MONTHLY',
-      'annual':  'https://buy.stripe.com/TODO_PREMIUM_ANNUAL',
-      'founder': 'https://buy.stripe.com/TODO_FOUNDER',
-    };
+    // --- Config ---
+    const CONFIG = window.POCKETAPPS_CONFIG;
+    const founderConfig = CONFIG.plans.founder;
 
     // --- Initialize Supabase Client ---
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // --- DOM Elements ---
     const loading = document.getElementById('loading');
+    const ivaNote = document.getElementById('iva-note');
+
+    // --- Helpers ---
+    function formatEuro(value) {
+      return value % 1 === 0 ? String(value) : value.toFixed(2);
+    }
+
+    function makeStatus(text) {
+      const el = document.createElement('div');
+      el.className = 'theme-status theme-status-owned';
+      el.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ' + text;
+      return el;
+    }
+
+    function makeComingSoon() {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-buy';
+      btn.disabled = true;
+      btn.textContent = CONFIG.comingSoonLabel;
+      return btn;
+    }
+
+    // --- Render founder slots (public count from DB) ---
+    async function loadFounderInfo() {
+      const card = document.querySelector('.pricing-card-founder');
+      const badge = card.querySelector('.pricing-badge');
+      const price = card.querySelector('.pricing-price');
+      const period = card.querySelector('.pricing-period');
+      const countdown = card.querySelector('.founder-countdown');
+
+      let count = 0;
+      try {
+        const { data, error } = await supabaseClient.rpc('get_founder_count');
+        if (error) throw error;
+        count = data ?? 0;
+      } catch (err) {
+        console.error('Error loading founder count:', err);
+      }
+
+      const threshold = founderConfig.promotionThreshold;
+      const hasDiscount = count < threshold;
+      const slotsLeft = Math.max(threshold - count, 0);
+
+      if (hasDiscount) {
+        badge.classList.add('badge-founder');
+        badge.textContent = founderConfig.promotion;
+        price.textContent = '€' + formatEuro(founderConfig.pricePerApp / 2);
+        period.textContent = 'pagamento único · por app · de €' + formatEuro(founderConfig.pricePerApp);
+        countdown.textContent = slotsLeft + ' de ' + threshold + ' vagas de founder disponíveis';
+      } else {
+        badge.classList.remove('badge-founder');
+        badge.textContent = 'Lifetime';
+        price.textContent = '€' + formatEuro(founderConfig.pricePerApp);
+        period.textContent = 'pagamento único · por app';
+        countdown.textContent = 'Promoção de lançamento esgotada — preço total';
+      }
+    }
 
     // --- Render pricing based on current plan ---
     function renderPricingAuthenticated(plan, status, endsAt) {
       const isActive = status === 'active' && (!endsAt || new Date(endsAt) > new Date());
+      const paidPlans = ['premium', 'founder'];
 
-      // Update each plan card
-      const plans = [
-        { id: 'free',    actionsId: 'free-actions',    label: 'Plano atual' },
-        { id: 'premium', actionsId: 'premium-actions', label: 'Comprar Premium', link: STRIPE_PAYMENT_LINKS.premium },
-        { id: 'annual',  actionsId: 'annual-actions',  label: 'Comprar Anual',  link: STRIPE_PAYMENT_LINKS.annual },
-        { id: 'founder', actionsId: 'founder-actions', label: 'Apoiar (29,99€)', link: STRIPE_PAYMENT_LINKS.founder },
-      ];
-
-      plans.forEach(p => {
-        const container = document.getElementById(p.actionsId);
+      const cards = ['free', 'premium', 'founder'];
+      cards.forEach(id => {
+        const container = document.getElementById(id + '-actions');
         if (!container) return;
 
         container.innerHTML = '';
 
-        if (plan === p.id || (p.id === 'premium' && plan === 'founder')) {
-          // Current plan or included
-          const status = document.createElement('div');
-          status.className = 'theme-status theme-status-owned';
-          status.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ' + (plan === p.id ? 'Plano atual' : 'Incluído');
-          container.appendChild(status);
-        } else if (plan === 'founder') {
-          // Founder has everything
-          const status = document.createElement('div');
-          status.className = 'theme-status theme-status-owned';
-          status.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Incluído no Founder';
-          container.appendChild(status);
-        } else if (p.link) {
-          // Show buy button
-          const buyLink = document.createElement('a');
-          buyLink.className = 'btn-buy';
-          buyLink.href = p.link;
-          buyLink.target = '_blank';
-          buyLink.rel = 'noopener noreferrer';
-          buyLink.textContent = p.label;
-          container.appendChild(buyLink);
+        const owns = isActive && plan === id;
+        const included = !owns && (
+          (id === 'free' && paidPlans.includes(plan)) ||
+          (id === 'premium' && plan === 'founder')
+        );
+
+        if (owns) {
+          container.appendChild(makeStatus('Plano atual'));
+        } else if (included) {
+          container.appendChild(makeStatus('Incluído'));
+        } else {
+          // Stripe ainda não implementado — botão desativado
+          container.appendChild(makeComingSoon());
         }
       });
     }
@@ -206,6 +237,9 @@
 
     // --- Check auth on page load ---
     (async () => {
+      ivaNote.textContent = CONFIG.ivaNote;
+      loadFounderInfo();
+
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
         loadUserSubscription();

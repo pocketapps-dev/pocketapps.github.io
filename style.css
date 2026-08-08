@@ -739,6 +739,23 @@ body {
   border-bottom: none;
 }
 
+.pricing-iva-note {
+  margin: 24px 0 0;
+  font-size: 0.8rem;
+  color: var(--secondary);
+  text-align: center;
+}
+
+.btn-buy:disabled {
+  background: var(--border);
+  color: var(--secondary);
+  cursor: not-allowed;
+}
+
+.btn-buy:disabled:hover {
+  transform: none;
+}
+
 /* --- CTA --- */
 .cta-section {
   padding: 80px 24px;
@@ -1509,6 +1526,10 @@ body {
   font-size: 0.8rem;
   font-weight: 600;
   color: #ec4899;
+}
+
+.pricing-features li.founder-countdown {
+  border-bottom: none;
 }
 
 /* --- Pricing feature disabled --- */

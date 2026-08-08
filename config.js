@@ -8,27 +8,27 @@ window.POCKETAPPS_CONFIG = {
       name: 'Free',
       price: '€0',
       period: 'para sempre',
+      note: 'Por conta',
     },
     premium: {
       name: 'Premium',
-      priceMonthly: 1.49,        // € per month
-      priceTotal: 17.88,         // € total charged (annual)
+      priceMonthly: 1.49,      // € reference (monthly cost)
+      priceTotal: 14.99,       // € billed per year — todas as apps
       period: 'por ano',
       monthlyNote: '€1.49/mês',
-    },
-    annual: {
-      name: 'Premium Anual',
-      price: '€14.99',
-      period: 'por ano (€1.25/mês)',
+      scope: 'todas as apps',
     },
     founder: {
       name: 'Founder',
-      price: '€29.99',
-      period: 'pagamento único (lifetime)',
+      pricePerApp: 25,         // € full price per app
       promotion: '50% OFF',
-      promotionNote: 'Promoção limitada a 500 códigos',
+      promotionThreshold: 5,   // nº de founders na BD a partir do qual o desconto termina
     },
   },
+
+  // --- Checkout ---
+  ivaNote: 'Preços sem IVA. IVA cobrado no checkout.',
+  comingSoonLabel: 'Em breve',
 
   // --- Themes teaser ---
   themesTeaser: {

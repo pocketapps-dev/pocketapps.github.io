@@ -13,11 +13,27 @@ Website for **PocketApps** — [pocketapps.pt](https://pocketapps.pt)
 ## Structure
 
 ```
-index.html      Landing page
-terms.html      Terms of Service (Portuguese)
-privacy.html    Privacy Policy (Portuguese)
-style.css       Shared styles
+index.html       Landing page
+apps.html        Apps page
+features.html    Features page
+pricing.html     Pricing page
+themes.html      Themes page
+ativar.html      Activation guide
+conta.html       Account / auth page
+contact.html     Contact page
+terms.html       Terms of Service (Portuguese)
+privacy.html     Privacy Policy (Portuguese)
+header.html      Navbar partial (injected by layout.js)
+footer.html      Footer partial (injected by layout.js)
+layout.js        Injects header/footer, auth state, theme toggle, mobile menu
+style.css        Shared styles
+config.js        Supabase config (deferred)
+logo.svg         Site logo
+apk/             Built app packages
 ```
+
+The navbar uses the logo image (`logo.svg`) and collapses into a responsive
+dropdown menu with a hamburger toggle on small screens (< 640px).
 
 ## Development
 

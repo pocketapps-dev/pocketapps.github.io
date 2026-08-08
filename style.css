@@ -72,11 +72,20 @@ body {
 }
 
 .nav-logo {
+  display: flex;
+  align-items: center;
   font-size: 1.2rem;
   font-weight: 800;
   text-decoration: none;
   color: var(--content);
   letter-spacing: -0.02em;
+}
+
+.nav-logo-img {
+  display: block;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
 }
 
 .theme-toggle {
@@ -188,6 +197,114 @@ body {
 .nav-logout:hover {
   color: #ef4444;
   background: rgba(239, 68, 68, 0.1);
+}
+
+/* --- Mobile menu toggle --- */
+.nav-menu-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--secondary);
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.nav-menu-toggle:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.nav-menu-line-1,
+.nav-menu-line-2,
+.nav-menu-line-3 {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.nav-menu-toggle.open .nav-menu-line-1 {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.nav-menu-toggle.open .nav-menu-line-2 {
+  opacity: 0;
+}
+
+.nav-menu-toggle.open .nav-menu-line-3 {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* --- Mobile menu dropdown --- */
+.nav-mobile-menu {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 24px 16px;
+  background: var(--nav-bg);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+}
+
+.nav-mobile-menu.open {
+  display: flex;
+}
+
+.nav-mobile-menu a,
+.nav-mobile-menu button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: var(--font);
+  color: var(--content);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-mobile-menu a:hover {
+  color: var(--primary);
+  background: var(--tertiary);
+}
+
+.nav-mobile-menu .nav-mobile-email {
+  font-weight: 600;
+  color: var(--primary);
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  border-radius: 0;
+}
+
+.nav-mobile-logout {
+  color: #ef4444;
+}
+
+.nav-mobile-logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+@media (max-width: 640px) {
+  .nav-menu-toggle {
+    display: inline-flex;
+  }
+
+  #nav-login,
+  .nav-user {
+    display: none;
+  }
+
+  .nav-mobile-menu.open {
+    display: flex;
+  }
 }
 
 /* --- Hero --- */

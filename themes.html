@@ -17,13 +17,6 @@
   <header id="header"></header>
 
   <main>
-    <section class="hero-sub">
-      <div class="hero-sub-content">
-        <h1>Loja de Temas</h1>
-        <p class="hero-sub-subtitle">Personaliza a aparência da tua app. Todos os temas a 0,99€ (compra única), incluídos no Premium.</p>
-      </div>
-    </section>
-
     <section class="themes-section">
       <div class="section-header">
         <h2>Temas Disponíveis</h2>
@@ -353,7 +346,7 @@
       });
 
       // Update subtitle
-      const owned = themes.filter(t => t.available).length;
+      const owned = themes.filter(t => t.available).reduce((sum, t) => sum + (t.theme_key === 'default' ? 2 : 1), 0);
       const total = themes.length;
       themesSubtitle.textContent = owned + ' de ' + total + ' temas disponíveis. Temas a 0,99€ cada (compra única); incluídos no Premium.';
     }

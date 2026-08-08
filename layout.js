@@ -41,11 +41,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // --- Mobile menu toggle ---
+  const navMenuToggle = document.getElementById('navMenuToggle');
+  const navMobileMenu = document.getElementById('navMobileMenu');
+  if (navMenuToggle && navMobileMenu) {
+    const closeMobileMenu = () => {
+      navMobileMenu.classList.remove('open');
+      navMenuToggle.classList.remove('open');
+      navMenuToggle.setAttribute('aria-expanded', 'false');
+      navMenuToggle.setAttribute('aria-label', 'Abrir menu');
+    };
+
+    navMenuToggle.addEventListener('click', () => {
+      const open = navMobileMenu.classList.toggle('open');
+      navMenuToggle.classList.toggle('open', open);
+      navMenuToggle.setAttribute('aria-expanded', String(open));
+      navMenuToggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+    });
+
+    navMobileMenu.querySelectorAll('a, button').forEach((el) => {
+      el.addEventListener('click', closeMobileMenu);
+    });
+  }
+
   // --- Auth state in navbar ---
   const navLogin = document.getElementById('nav-login');
   const navUser = document.getElementById('nav-user');
   const navUserEmail = document.getElementById('nav-user-email');
   const navLogout = document.getElementById('nav-logout');
+  const navMobileLogin = document.getElementById('nav-mobile-login');
+  const navMobileEmail = document.getElementById('nav-mobile-email');
+  const navMobileLogout = document.getElementById('nav-mobile-logout');
 
   // Only run auth logic if the navbar has auth elements AND the Supabase SDK is loaded
   if (navLogin && navUser && navLogout && window.supabase) {
@@ -60,16 +86,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (navUserEmail && session.user?.email) {
           navUserEmail.textContent = session.user.email;
         }
+        if (navMobileLogin) navMobileLogin.classList.add('hidden');
+        if (navMobileLogout) navMobileLogout.classList.remove('hidden');
+        if (navMobileEmail) {
+          navMobileEmail.classList.remove('hidden');
+          if (session.user?.email) navMobileEmail.textContent = session.user.email;
+        }
       } else {
         navLogin.classList.remove('hidden');
         navUser.classList.add('hidden');
+        if (navMobileLogin) navMobileLogin.classList.remove('hidden');
+        if (navMobileEmail) navMobileEmail.classList.add('hidden');
+        if (navMobileLogout) navMobileLogout.classList.add('hidden');
       }
     }
 
-    navLogout.addEventListener('click', async () => {
+    const logout = async () => {
       await supabaseClient.auth.signOut();
       window.location.href = '/';
-    });
+    };
+
+    navLogout.addEventListener('click', logout);
+    if (navMobileLogout) navMobileLogout.addEventListener('click', logout);
 
     // Check existing session (only show user menu if session is valid)
     const { data: { session } } = await supabaseClient.auth.getSession();

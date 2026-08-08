@@ -21,6 +21,7 @@ window.POCKETAPPS_CONFIG = {
     founder: {
       name: 'Founder',
       pricePerApp: 25,         // € full price per app
+      appCount: 3,             // nº de apps incluídas (bundle) — preço é o total das apps
       promotion: '50% OFF',
       promotionThreshold: 5,   // nº de founders na BD a partir do qual o desconto termina
     },

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Preços — PocketApps</title>
-  <meta name="description" content="Planos PocketApps: Free (por conta), Premium (1,49€/mês · 14,99€/ano, todas as apps) e Founder (25€/app com 50% OFF em vagas limitadas).">
+  <meta name="description" content="Planos PocketApps: Free (por conta), Premium (1,49€/mês · 14,99€/ano, todas as apps) e Founder (37,50€ · 3 apps · 50% OFF em vagas limitadas).">
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -77,8 +77,8 @@
         <div class="pricing-card pricing-card-founder" data-plan="founder">
           <div class="pricing-badge badge-founder">50% OFF</div>
           <h3>Founder</h3>
-          <div class="pricing-price">€12.50</div>
-          <p class="pricing-period">pagamento único · por app · de €25</p>
+          <div class="pricing-price">€37.50</div>
+          <p class="pricing-period">3 apps · pagamento único · 50% OFF (€25/app)</p>
           <ul class="pricing-features">
             <li>&#10003; Tudo do Premium</li>
             <li>&#10003; Todas as apps (bundle)</li>
@@ -161,18 +161,19 @@
       const threshold = founderConfig.promotionThreshold;
       const hasDiscount = count < threshold;
       const slotsLeft = Math.max(threshold - count, 0);
+      const totalPrice = founderConfig.pricePerApp * founderConfig.appCount;
 
       if (hasDiscount) {
         badge.classList.add('badge-founder');
         badge.textContent = founderConfig.promotion;
-        price.textContent = '€' + formatEuro(founderConfig.pricePerApp / 2);
-        period.textContent = 'pagamento único · por app · de €' + formatEuro(founderConfig.pricePerApp);
+        price.textContent = '€' + formatEuro(totalPrice / 2);
+        period.textContent = founderConfig.appCount + ' apps · pagamento único · 50% OFF (€' + formatEuro(founderConfig.pricePerApp) + '/app)';
         countdown.textContent = slotsLeft + ' de ' + threshold + ' vagas de founder disponíveis';
       } else {
         badge.classList.remove('badge-founder');
         badge.textContent = 'Lifetime';
-        price.textContent = '€' + formatEuro(founderConfig.pricePerApp);
-        period.textContent = 'pagamento único · por app';
+        price.textContent = '€' + formatEuro(totalPrice);
+        period.textContent = founderConfig.appCount + ' apps · pagamento único · €' + formatEuro(founderConfig.pricePerApp) + '/app · Lifetime';
         countdown.textContent = 'Promoção de lançamento esgotada — preço total';
       }
     }

@@ -59,7 +59,7 @@
           <div class="pricing-badge badge-featured">Recomendado</div>
           <h3>Premium</h3>
           <div class="pricing-price">€14.99</div>
-          <p class="pricing-period">por ano · €1.49/mês</p>
+          <p class="pricing-period">por ano · €1.49/mês · todas as apps</p>
           <ul class="pricing-features">
             <li>&#10003; Todas as apps (bundle)</li>
             <li>&#10003; Tudo do Free (sem limites)</li>
@@ -112,6 +112,7 @@
     // --- Config ---
     const CONFIG = window.POCKETAPPS_CONFIG;
     const founderConfig = CONFIG.plans.founder;
+    let founderCount = 0;
 
     // --- Initialize Supabase Client ---
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -132,12 +133,12 @@
       return el;
     }
 
-    function makeComingSoon() {
+    function makeBuyButton(label) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'btn-buy';
       btn.disabled = true;
-      btn.textContent = CONFIG.comingSoonLabel;
+      btn.textContent = label;
       return btn;
     }
 
@@ -154,6 +155,7 @@
         const { data, error } = await supabaseClient.rpc('get_founder_count');
         if (error) throw error;
         count = data ?? 0;
+        founderCount = count;
       } catch (err) {
         console.error('Error loading founder count:', err);
       }
@@ -182,6 +184,12 @@
     function renderPricingAuthenticated(plan, status, endsAt) {
       const isActive = status === 'active' && (!endsAt || new Date(endsAt) > new Date());
       const paidPlans = ['premium', 'founder'];
+      const hasDiscount = founderCount < founderConfig.promotionThreshold;
+      const founderTotal = founderConfig.pricePerApp * founderConfig.appCount;
+      const buyLabels = {
+        premium: 'Comprar Premium · €' + formatEuro(CONFIG.plans.premium.priceTotal) + '/ano',
+        founder: 'Comprar Founder · €' + formatEuro(hasDiscount ? founderTotal / 2 : founderTotal),
+      };
 
       const cards = ['free', 'premium', 'founder'];
       cards.forEach(id => {
@@ -201,8 +209,7 @@
         } else if (included) {
           container.appendChild(makeStatus('Incluído'));
         } else {
-          // Stripe ainda não implementado — botão desativado
-          container.appendChild(makeComingSoon());
+          container.appendChild(makeBuyButton(buyLabels[id] || CONFIG.comingSoonLabel));
         }
       });
     }

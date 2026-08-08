@@ -1698,34 +1698,6 @@ body {
   margin: 0;
 }
 
-/* --- Sub-page hero --- */
-.hero-sub {
-  padding: 130px 24px 60px;
-  text-align: center;
-  background: var(--bg);
-}
-
-.hero-sub-content {
-  max-width: 640px;
-  margin: 0 auto;
-}
-
-.hero-sub h1 {
-  font-size: clamp(2.2rem, 5vw, 3.2rem);
-  font-weight: 800;
-  margin: 0 0 12px;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.hero-sub-subtitle {
-  font-size: clamp(1rem, 2vw, 1.15rem);
-  color: var(--secondary);
-}
-
 /* --- Teaser sections (homepage) --- */
 .apps-teaser,
 .features-teaser,

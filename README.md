@@ -15,7 +15,7 @@ Website for **PocketApps** — [pocketapps.pt](https://pocketapps.pt)
 ```
 index.html       Landing page
 apps.html        Apps page
-features.html    Features page
+features.html    Funcionalidades page
 pricing.html     Pricing page
 themes.html      Themes page
 ativar.html      Activation guide

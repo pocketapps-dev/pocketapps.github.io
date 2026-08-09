@@ -928,6 +928,8 @@ body {
 .theme-preview-ocean { background: linear-gradient(135deg, #0c3a4d, #0284c7); }
 .theme-preview-autumn { background: linear-gradient(135deg, #451a03, #9a3412); }
 .theme-preview-galaxy { background: linear-gradient(135deg, #1e002b, #5821b5); }
+.theme-preview-light { background: linear-gradient(135deg, #f1f5f9, #ffffff); }
+.theme-preview-dark { background: linear-gradient(135deg, #0f0f1a, #1a1a2e); }
 
 .theme-card h3 {
   font-size: 1.2rem;

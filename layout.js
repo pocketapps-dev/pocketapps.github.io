@@ -131,6 +131,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // --- Mobile menu toggle (hamburger dropdown) ---
+  const navMenuBtn = document.getElementById('navMenuBtn');
+  if (navMenuBtn && navUser) {
+    navMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navUser.classList.toggle('open');
+      navMenuBtn.classList.toggle('open');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (navUser && navMenuBtn) {
+        if (!navMenuBtn.contains(e.target) && !navUser.contains(e.target)) {
+          navUser.classList.remove('open');
+          navMenuBtn.classList.remove('open');
+        }
+      }
+    });
+
+    // Close dropdown on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && navUser) {
+        navUser.classList.remove('open');
+        navMenuBtn.classList.remove('open');
+      }
+    });
+  }
+
   // --- Cookie consent banner ---
   const cookieConsent = localStorage.getItem('cookie-consent');
   if (!cookieConsent) {
